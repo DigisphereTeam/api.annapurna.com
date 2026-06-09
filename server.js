@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const dotEnv = require("dotenv")
 
 const userRoutes = require('./routes/userroutes');
 const adminRoutes = require('./routes/adminroutes');
@@ -14,6 +15,7 @@ const dashboardRoutes=require('./routes/dashboardroutes');
 const notify=require('./routes/notifyroutes');
 const sendResponse = require("./utils/sendResponse.js");
 
+dotEnv.config();
 const app = express();
 
 app.get("/" , (_, res)=>{
@@ -35,9 +37,8 @@ app.use('/order',orderRoutes);
 app.use('/dashboard',dashboardRoutes);
 app.use('/notify',notify);
 
+const port = process.env.PORT || 5000;
 
-
-
-app.listen(5000, () => {
-    console.log("Server is running on port 5000");
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
 });

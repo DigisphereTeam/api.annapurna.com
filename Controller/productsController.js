@@ -141,13 +141,15 @@ exports.getAllProduct = async (req, res) => {
             FROM tbl_product p
             INNER JOIN tbl_grams g ON p.product_id = g.product_id
             INNER JOIN tbl_category c ON p.category_id = c.category_id
-            GROUP BY p.product_id, p.product_name, p.product_image,p.description,product_status,c.category_name , c.category_id;
+            GROUP BY p.product_id, p.product_name, p.product_image,p.description,product_status,c.category_name , c.category_id
+            ORDER BY p.product_id desc;
         `;
 
         const result = await pool.query(query);
 
         res.status(200).json({
             statusCode: 200,
+            message: "Products fetched successfully",
             data: result.rows, // Send the formatted data
         });
 
@@ -155,7 +157,7 @@ exports.getAllProduct = async (req, res) => {
         console.error("Error fetching products:", error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };
