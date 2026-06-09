@@ -1,16 +1,21 @@
 const { Pool } = require('pg');
-const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost', // Adjust if connecting to a remote server
-    database: 'annapurna',
-    password: 'Postgres@1729',
-    port: 5432,  
-});
-pool.query('SET TIMEZONE = \'Asia/Kolkata\';')
-  .then(() => console.log('Timezone set to Asia/Kolkata'))
-  .catch((err) => console.error('Error setting timezone', err));
 
-module.exports=pool
+const dotEnv = require("dotenv")
+
+dotEnv.config();
+
+const pool = new Pool({
+  user: process.env.DB_USER_NAME,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? { rejectUnauthorized: false }
+      : false,
+});
+module.exports = pool
 
 
 // require('dotenv').config();
