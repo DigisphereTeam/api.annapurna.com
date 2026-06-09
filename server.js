@@ -12,8 +12,13 @@ const cartRoutes=require('./routes/cartroutes');
 const orderRoutes=require('./routes/orderroutes');
 const dashboardRoutes=require('./routes/dashboardroutes');
 const notify=require('./routes/notifyroutes');
+const sendResponse = require("./utils/sendResponse.js");
 
 const app = express();
+
+app.get("/" , (_, res)=>{
+    sendResponse(res , 200 , "Server is up and runnning")
+})
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); 
 app.use(express.json());

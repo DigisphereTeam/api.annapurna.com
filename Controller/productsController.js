@@ -89,10 +89,10 @@ exports.addproduct = async (req, res) => {
         const priceGramsData = Array.isArray(price_grams) ? price_grams : JSON.parse(price_grams);
 
 
-        for (const { grams, price,stock } of priceGramsData) {
+        for (const { grams, price, stock } of priceGramsData) {
             await pool.query(
                 `INSERT INTO public.tbl_grams (grams, price, product_id,stock) VALUES ($1, $2, $3,$4)`,
-                [grams, price, product_id,stock]
+                [grams, price, product_id, stock]
             );
         }
 
@@ -129,7 +129,7 @@ exports.getAllProduct = async (req, res) => {
                 p.description,
                 p.product_status,
                 c.category_name,
-                c.category_id
+                c.category_id,
                 json_agg(
                     json_build_object(
                         'pricegrams_id',g.pricegrams_id,
@@ -141,7 +141,7 @@ exports.getAllProduct = async (req, res) => {
             FROM tbl_product p
             INNER JOIN tbl_grams g ON p.product_id = g.product_id
             INNER JOIN tbl_category c ON p.category_id = c.category_id
-            GROUP BY p.product_id, p.product_name, p.product_image,p.description,product_status,c.category_name;
+            GROUP BY p.product_id, p.product_name, p.product_image,p.description,product_status,c.category_name , c.category_id;
         `;
 
         const result = await pool.query(query);
@@ -287,91 +287,91 @@ exports.getProductById = async (req, res) => {
 // };
 
 exports.updateProduct = async (req, res) => {
-  try {
-    const { product_id, product_name, description, category_id, price_grams } = req.body;
+    try {
+        const { product_id, product_name, description, category_id, price_grams } = req.body;
 
-    if (!product_id || !product_name || !category_id || !price_grams) {
-      return res.status(400).json({
-        statusCode: 400,
-        message: "Product ID, name, category, and price_grams are required"
-      });
-    }
+        if (!product_id || !product_name || !category_id || !price_grams) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Product ID, name, category, and price_grams are required"
+            });
+        }
 
-    // Handle image upload
-    const productImage = req.files?.product_image?.[0]?.filename
-      ? `uploads/${req.files.product_image[0].filename}`
-      : null;
+        // Handle image upload
+        const productImage = req.files?.product_image?.[0]?.filename
+            ? `uploads/${req.files.product_image[0].filename}`
+            : null;
 
-    // Update product basic details
-    await pool.query(
-      `UPDATE tbl_product 
+        // Update product basic details
+        await pool.query(
+            `UPDATE tbl_product 
        SET product_name=$1, category_id=$2, description=$3, 
        product_image=COALESCE($4, product_image)
        WHERE product_id=$5`,
-      [product_name, category_id, description, productImage, product_id]
-    );
+            [product_name, category_id, description, productImage, product_id]
+        );
 
-    // Parse grams list
-    const priceGramsData = Array.isArray(price_grams) ? price_grams : JSON.parse(price_grams);
+        // Parse grams list
+        const priceGramsData = Array.isArray(price_grams) ? price_grams : JSON.parse(price_grams);
 
-    // Fetch existing grams in DB
-    const existing = await pool.query(
-      `SELECT pricegrams_id, grams FROM tbl_grams WHERE product_id=$1`,
-      [product_id]
-    );
+        // Fetch existing grams in DB
+        const existing = await pool.query(
+            `SELECT pricegrams_id, grams FROM tbl_grams WHERE product_id=$1`,
+            [product_id]
+        );
 
-    const existingMap = new Map(existing.rows.map(r => [r.grams, r.pricegrams_id]));
+        const existingMap = new Map(existing.rows.map(r => [r.grams, r.pricegrams_id]));
 
-    const incomingGrams = priceGramsData.map(item => item.grams);
+        const incomingGrams = priceGramsData.map(item => item.grams);
 
-    // ✅ Update existing / Insert new
-    for (const { grams, price, stock } of priceGramsData) {
-      if (existingMap.has(grams)) {
-        // UPDATE existing gram
-        await pool.query(
-          `UPDATE tbl_grams 
+        // ✅ Update existing / Insert new
+        for (const { grams, price, stock } of priceGramsData) {
+            if (existingMap.has(grams)) {
+                // UPDATE existing gram
+                await pool.query(
+                    `UPDATE tbl_grams 
            SET price=$1, stock=$2 
            WHERE pricegrams_id=$3`,
-          [price, stock, existingMap.get(grams)]
-        );
-      } else {
-        // INSERT new gram
-        await pool.query(
-          `INSERT INTO tbl_grams (grams, price, stock, product_id)
+                    [price, stock, existingMap.get(grams)]
+                );
+            } else {
+                // INSERT new gram
+                await pool.query(
+                    `INSERT INTO tbl_grams (grams, price, stock, product_id)
            VALUES ($1, $2, $3, $4)`,
-          [grams, price, stock, product_id]
-        );
-      }
-    }
+                    [grams, price, stock, product_id]
+                );
+            }
+        }
 
-    // ❌ Delete grams removed by admin
-    await pool.query(
-      `DELETE FROM tbl_grams 
+        // ❌ Delete grams removed by admin
+        await pool.query(
+            `DELETE FROM tbl_grams 
        WHERE product_id=$1 
-       AND grams NOT IN (${incomingGrams.map((_, i) => `$${i+2}`).join(",")})`,
-      [product_id, ...incomingGrams]
-    );
+       AND grams NOT IN (${incomingGrams.map((_, i) => `$${i + 2}`).join(",")})`,
+            [product_id, ...incomingGrams]
+        );
 
-    return res.status(200).json({
-      statusCode: 200,
-      message: "Product updated successfully",
-      product: {
-        product_id,
-        product_name,
-        product_image: productImage,
-        description,
-        category_id,
-        price_grams: priceGramsData
-      }
-    });
+        return res.status(200).json({
+            statusCode: 200,
+            message: "Product updated successfully",
+            product: {
+                product_id,
+                product_name,
+                product_image: productImage,
+                description,
+                category_id,
+                price_grams: priceGramsData
+            }
+        });
 
-  } catch (error) {
-    console.error("Update product error:", error);
-    return res.status(500).json({
-      statusCode: 500,
-      message: "Internal Server Error"
-    });
-  }
+    } catch (error) {
+        console.error("Update product error:", error);
+        return res.status(500).json({
+            statusCode: 500,
+            message: "Internal Server Error"
+        });
+    }
 };
 
 
@@ -541,7 +541,7 @@ exports.updateProductStatus = async (req, res) => {
 //                 p.description,
 //                 p.product_name,
 //                 p.product_image,
-                 
+
 //                 (
 //                     SELECT json_agg(
 //                         jsonb_build_object(
@@ -589,8 +589,8 @@ exports.updateProductStatus = async (req, res) => {
 // latest API
 
 exports.getallcategoryproducts = async (req, res) => {
-  try {
-    const query = `
+    try {
+        const query = `
       SELECT 
           c.category_id AS category,
           c.category_name,
@@ -634,18 +634,18 @@ exports.getallcategoryproducts = async (req, res) => {
       ORDER BY c.category_id;
     `;
 
-    const result = await pool.query(query);
+        const result = await pool.query(query);
 
-    res.status(200).json({
-      statusCode: 200,
-      data: result.rows
-    });
+        res.status(200).json({
+            statusCode: 200,
+            data: result.rows
+        });
 
-  } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).json({
-      statusCode: 500,
-      message: 'Internal Server Error'
-    });
-  }
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({
+            statusCode: 500,
+            message: 'Internal Server Error'
+        });
+    }
 };
