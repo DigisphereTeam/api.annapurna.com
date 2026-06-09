@@ -125,10 +125,11 @@ exports.getAllProduct = async (req, res) => {
                 p.product_id,
                 p.product_name,
                 p.product_image,
-               
+
                 p.description,
                 p.product_status,
                 c.category_name,
+                c.category_id
                 json_agg(
                     json_build_object(
                         'pricegrams_id',g.pricegrams_id,
