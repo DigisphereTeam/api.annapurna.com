@@ -113,22 +113,26 @@ exports.getcartuserByid = async (req, res) => {
         );
 
         if (cartItems.rows.length === 0) {
-            return res.status(404).json({
-                statusCode: 404,
-                message: "Cart is empty for this user"
+            return res.status(200).json({
+                success: true,
+                statusCode: 200,
+                cart: [],
+                message: "Cart is empty."
             });
         }
 
         res.status(200).json({
+            success: true,
             statusCode: 200,
-            message: 'Cart fetched successfully',
+            cartCount: cartItems.rows.length,
+            message: "Cart fetched successfully",
             cart: cartItems.rows
         });
     } catch (error) {
         console.error('getcartByid error:', error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal server error'
+            message: error.message || 'Internal server error'
         });
     }
 };
@@ -147,7 +151,7 @@ exports.getallCarts = async (req, res) => {
     }
 }
 
- 
+
 
 
 exports.updatecartproduct = async (req, res) => {
@@ -194,7 +198,7 @@ exports.updatecartproduct = async (req, res) => {
             statusCode: 500,
             message: 'Internal Server Error',
         });
-    } 
+    }
 }
 
 exports.deleteCart = async (req, res) => {
@@ -234,7 +238,7 @@ exports.deleteCart = async (req, res) => {
         });
 
     } catch (error) {
-        
+
         res.status(500).json({
             statusCode: 500,
             message: 'Internal Server Error',
