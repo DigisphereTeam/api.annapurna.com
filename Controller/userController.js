@@ -137,7 +137,7 @@ exports.getuserByid=async(req,res)=>{
 
 exports.updateUser=async(req,res)=>{
     try{
-    const { user_id,first_name, last_name, email, phone_number,street,city,state,pincode}=req.body
+    const { user_id,first_name, last_name, phone_number,street,city,state,pincode}=req.body
     const fileds=[];
     const values=[];
     let index=1;
@@ -149,10 +149,6 @@ exports.updateUser=async(req,res)=>{
     if(last_name){
         fileds.push(`"last_name"=$${index++}`);
         values.push(last_name)
-    }
-    if(email){
-        fileds.push(`"email"=$${index++}`)
-        values.push(email)
     }
     if(phone_number){
         fileds.push(`"phone_number"=$${index++}`)
