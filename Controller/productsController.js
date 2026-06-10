@@ -614,7 +614,6 @@ exports.getallcategoryproducts = async (req, res) => {
                                   'price', g.price,
                                   'pricegrams_id', g.pricegrams_id,
                                   'stock', g.stock,
-                                  -- ✅ Individual stock status for each gram
                                   'stock_status', 
                                   CASE 
                                       WHEN g.stock > 0 THEN 'in_stock'
