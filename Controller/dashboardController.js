@@ -1,8 +1,9 @@
 const pool = require('../db/db');
+const sendErroResponse = require('../utils/sendErrorResponse.js');
 
 exports.getOrderStatusCounts = async (req, res) => {
-    try {
-      const result = await pool.query(`
+  try {
+    const result = await pool.query(`
         SELECT 
           COUNT(*) FILTER (WHERE order_status = 'Pending') AS Pending,
           COUNT(*) FILTER (WHERE order_status = 'Confirmed') AS Confirmed,
@@ -10,29 +11,32 @@ exports.getOrderStatusCounts = async (req, res) => {
           COUNT(*) FILTER (WHERE order_status = 'Shipped') AS Shipped
         FROM tbl_order
       `);
-  
-      res.status(200).json({
-        statusCode: 200,
-        message: 'Order status counts fetched successfully',
-        data: result.rows[0],
-      });
-  
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).json({
-        statusCode: 500,
-        message: 'Internal Server Error',
-      });
-    }
-  };
-  
 
- 
-  exports.getOrdersByStatus = async (req, res) => {
-    const { status } = req.body;
-  
-    try {
-      const result = await pool.query(`
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Order status counts fetched successfully',
+      data: result.rows[0],
+    });
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({
+      statusCode: 500,
+      message: 'Internal Server Error',
+    });
+  }
+};
+
+
+
+exports.getOrdersByStatus = async (req, res) => {
+  const { status } = req.body;
+  if (!status) {
+    return sendErroResponse(res, 400, "Status is required");
+  }
+
+  try {
+    const result = await pool.query(`
         SELECT 
           o.order_id,
           o.order_number,
@@ -56,20 +60,19 @@ exports.getOrderStatusCounts = async (req, res) => {
         ORDER BY 
           o.order_date DESC
       `, status ? [status] : []);
-  
-      res.status(200).json({
-        statusCode: 200,
-        message: 'Orders fetched successfully',
-        data: result.rows,
-      });
-  
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).json({
-        statusCode: 500,
-        message: 'Internal Server Error',
-      });
-    }
-  };
-  
-  
+
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Orders fetched successfully',
+      data: result.rows,
+    });
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({
+      statusCode: 500,
+      message: 'Internal Server Error',
+    });
+  }
+};
+

@@ -12,8 +12,8 @@ exports.addCoupon = async (req, res) => {
         }
 
       
-        const exisCoupon = await pool.query('SELECT * FROM public.tbl_coupons WHERE coupon_code=$1', [coupon_code]);
-        if (exisCoupon.rows.length > 0) {
+        const existCoupon = await pool.query('SELECT * FROM public.tbl_coupons WHERE coupon_code=$1', [coupon_code]);
+        if (existCoupon.rows.length > 0) {
             return res.status(400).json({ 
                 stausCode:400,
                 message: 'coupon already exists' });
