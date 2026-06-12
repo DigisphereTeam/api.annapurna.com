@@ -15,7 +15,8 @@ const dashboardRoutes = require('./routes/dashboardroutes');
 const contactRoutes = require("./routes/contactusroutes");
 const notify = require('./routes/notifyroutes');
 const sendResponse = require("./utils/sendResponse.js");
-const notFoundController = require("./utils/notFound.js")
+const notFoundController = require("./utils/notFound.js");
+const globalErrorHandler = require("./utils/globalErrorHandler.js");
 
 dotEnv.config();
 const app = express();
@@ -42,12 +43,7 @@ app.use("/contact", contactRoutes);
 
 app.use(notFoundController);
 
-app.use((err, req, res, next) => {
-    res.status(err.statusCode || 500).json({
-        statusCode: err.statusCode || 500,
-        message: err.message || 'Internal Server Error'
-    });
-});
+app.use(globalErrorHandler);
 
 const port = process.env.PORT || 5000;
 

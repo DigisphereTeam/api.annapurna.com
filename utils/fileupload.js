@@ -12,22 +12,25 @@ const storage = multer.diskStorage({
 
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+  fs.mkdirSync(uploadDir);
 }
 
 const upload = multer({
   storage: storage,
+  limits: {
+    fileSize: 50 * 1024,
+    files: 5
+  },
   fileFilter: (req, file, cb) => {
     const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     if (!allowedMimeTypes.includes(file.mimetype)) {
-      return cb(new Error('Only images are allowed!'), false);
+      const error = new Error('Only JPEG, JPG, and PNG images are allowed');
+      error.statusCode = 400;
+      return cb(error);
     }
     cb(null, true);
   }
 });
 
-
-
- 
 module.exports = upload;
 
