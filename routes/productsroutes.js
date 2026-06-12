@@ -17,5 +17,6 @@ router.post('/updateProductStatus',productcontroller.updateProductStatus);
 router.get('/getAllcategoryproducts',productcontroller.getallcategoryproducts);
 
 router.get("/home" , productcontroller.getHomeProducts)
-  
+router.patch("/:id/type", productcontroller.updateProductTypeHandlers)
+
 module.exports=router

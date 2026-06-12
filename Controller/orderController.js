@@ -1,5 +1,5 @@
 const pool = require('../db/db');
-const sendErroResponse = require('../utils/sendErrorResponse.js');
+const sendErrorResponse = require('../utils/sendErrorResponse.js');
 
 exports.addOrder = async (req, res) => {
   const { user_id, address, first_name, last_name, city, state, pincode, phonenumber, delivery_charges } = req.body;
@@ -210,7 +210,7 @@ exports.getorders = async (req, res) => {
 exports.getOrderItems = async (req, res) => {
   const { order_id } = req.body;
   if (!order_id) {
-    return sendErroResponse(res, 400, "Order id is required")
+    return sendErrorResponse(res, 400, "Order id is required")
   }
   try {
     // Fetch order items

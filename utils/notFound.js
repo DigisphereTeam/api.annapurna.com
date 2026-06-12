@@ -1,6 +1,6 @@
-const sendErroResponse = require("./sendErrorResponse.js");
+const sendErrorResponse = require("./sendErrorResponse.js");
 const notFoundController = (req, res) => {
-    return sendErroResponse(res, 404, `Route ${req.originalUrl} not found`)
+    return sendErrorResponse(res, 404, `Route ${req.originalUrl} not found`)
 };
 
 module.exports = notFoundController;
