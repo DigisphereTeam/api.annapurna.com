@@ -16,5 +16,6 @@ router.post('/getproductsBycategory',productcontroller.getproductBycategory);
 router.post('/updateProductStatus',productcontroller.updateProductStatus);
 router.get('/getAllcategoryproducts',productcontroller.getallcategoryproducts);
 
+router.get("/recent" , productcontroller.getRecentlyViewedProducts)
   
 module.exports=router

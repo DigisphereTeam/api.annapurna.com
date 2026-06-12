@@ -1,4 +1,5 @@
-const pool = require('../db/db')
+const pool = require('../db/db');
+const sendResponse = require('../utils/sendResponse.js');
 
 exports.addproduct = async (req, res) => {
     try {
@@ -394,73 +395,6 @@ exports.updateProductStatus = async (req, res) => {
     }
 };
 
-
-
-
-
-// exports.getallcategoryproducts = async (req, res) => {
-//     try {
-//         const query = `
-//          SELECT 
-//     c.category_id AS category,
-//     c.category_name,
-//     c.category_image,
-//     (
-//         SELECT json_agg(product_data)
-//         FROM (
-//             SELECT 
-//                 p.product_id,
-//                 p.category_id,
-//                 p.description,
-//                 p.product_name,
-//                 p.product_image,
-
-//                 (
-//                     SELECT json_agg(
-//                         jsonb_build_object(
-//                             'grams', g.grams,
-//                             'price', g.price,
-//                             'pricegrams_id', g.pricegrams_id,
-//                             'stock',g.stock
-//                         )
-//                     )
-//                     FROM tbl_grams g
-//                     WHERE g.product_id = p.product_id
-//                 ) AS pricegrams
-//             FROM tbl_product p
-//             WHERE p.category_id = c.category_id
-//             AND p.product_status = 'visible'
-//             AND EXISTS (SELECT 1 FROM tbl_grams g WHERE g.product_id = p.product_id)
-//         ) AS product_data
-//     ) AS products
-// FROM 
-//     tbl_category c
-// ORDER BY 
-//     c.category_id;
-
-//         `;
-
-//         const result = await pool.query(query);
-
-//         res.status(200).json({
-//             statusCode: 200,
-//             data: result.rows, // Send the formatted data
-//         });
-
-//     } catch (error) {
-//         console.error("Error fetching products:", error);
-//         res.status(500).json({
-//             statusCode: 500,
-//             message: 'Internal Server Error'
-//         });
-//     }
-// }
-
-
-
-
-// latest API
-
 exports.getallcategoryproducts = async (req, res) => {
     try {
         const query = `
@@ -518,6 +452,38 @@ exports.getallcategoryproducts = async (req, res) => {
         res.status(500).json({
             statusCode: 500,
             message: error.message || 'Internal Server Error'
+        });
+    }
+};
+
+exports.getRecentlyViewedProducts = async (req, res) => {
+    try {
+        const query = `
+                SELECT 
+                    c.cart_id , 
+                    p.product_id, 
+                    p.product_name , 
+                    cat.category_name, 
+                    p.product_image,
+                    gram.grams,
+                    gram.price,
+                    gram.stock
+                FROM tbl_cart c
+                INNER JOIN tbl_product p ON c.product_id = p.product_id
+                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
+                ORDER BY cart_id DESC
+                LIMIT 10
+            `;
+
+        const result = await pool.query(query);
+
+        return sendResponse(res, 200, "Recent viwed products fetched successfully", result.rows)
+    } catch (error) {
+        console.error("Error fetching products:", error);
+        res.status(500).json({
+            statusCode: 500,
+            message: error.message || "Internal Server Error",
         });
     }
 };
