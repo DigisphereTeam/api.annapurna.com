@@ -456,11 +456,44 @@ exports.getallcategoryproducts = async (req, res) => {
     }
 };
 
-exports.getRecentlyViewedProducts = async (req, res) => {
+exports.getHomeProducts = async (req, res) => {
     try {
-        const query = `
+        const [featuredProducts, specialSaleProducts, recentViewedProducts] = await Promise.all([
+            pool.query(`
                 SELECT 
-                    c.cart_id , 
+                    p.product_id, 
+                    p.product_name , 
+                    cat.category_name, 
+                    p.product_image,
+                    gram.grams,
+                    gram.price,
+                    gram.stock
+                FROM tbl_product p
+                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
+                WHERE product_type = 1
+                ORDER BY product_id DESC
+                LIMIT 10
+            `),
+            pool.query(`
+                SELECT 
+                    p.product_id, 
+                    p.product_name , 
+                    cat.category_name, 
+                    p.product_image,
+                    gram.grams,
+                    gram.price,
+                    gram.stock
+                FROM tbl_product p
+                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
+                WHERE product_type = 2
+                ORDER BY product_id DESC
+                LIMIT 10
+                `)
+            ,
+            pool.query(`
+                SELECT 
                     p.product_id, 
                     p.product_name , 
                     cat.category_name, 
@@ -473,12 +506,14 @@ exports.getRecentlyViewedProducts = async (req, res) => {
                 INNER JOIN tbl_category cat ON cat.category_id = p.category_id
                 INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
                 ORDER BY cart_id DESC
-                LIMIT 10
-            `;
-
-        const result = await pool.query(query);
-
-        return sendResponse(res, 200, "Recent viwed products fetched successfully", result.rows)
+                LIMIT 10`
+            )
+        ])
+        return sendResponse(res, 200, "Home page products fetched successfully.", {
+            featured_products: featuredProducts.rows ?? [],
+            special_sale_products: specialSaleProducts.rows ?? [],
+            recent_viewed_products: recentViewedProducts.rows
+        })
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).json({
