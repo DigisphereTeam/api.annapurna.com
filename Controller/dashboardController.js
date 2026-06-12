@@ -1,28 +1,58 @@
 const pool = require('../db/db');
 const sendErroResponse = require('../utils/sendErrorResponse.js');
+const sendResponse = require('../utils/sendResponse.js');
 
 exports.getOrderStatusCounts = async (req, res) => {
   try {
-    const result = await pool.query(`
-        SELECT 
-          COUNT(*) FILTER (WHERE order_status = 'Pending') AS Pending,
-          COUNT(*) FILTER (WHERE order_status = 'Confirmed') AS Confirmed,
-          COUNT(*) FILTER (WHERE order_status = 'Delivered') AS Delivered,
-          COUNT(*) FILTER (WHERE order_status = 'Shipped') AS Shipped
+    const [ordersStatistics, couponsStatistics, categoryStatistics, productsStatistics] = await Promise.all([
+      pool.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE order_status = 'Pending') AS pending_count,
+          COUNT(*) FILTER (WHERE order_status = 'Confirmed') AS confirmed_count,
+          COUNT(*) FILTER (WHERE order_status = 'Delivered') AS delivered_count,
+          COUNT(*) FILTER (WHERE order_status = 'Shipped') AS shipped_count
         FROM tbl_order
-      `);
+      `),
 
-    res.status(200).json({
-      statusCode: 200,
-      message: 'Order status counts fetched successfully',
-      data: result.rows[0],
-    });
+      pool.query(`
+        SELECT
+          COUNT(*) AS total_count,
+          COUNT(*) AS  users_usage_count,
+          COUNT(*) FILTER (WHERE LOWER(status) = 'active') AS active_count,
+          COUNT(*) FILTER (WHERE LOWER(status) = 'inactive') AS inactive_count
+        FROM tbl_coupons
+      `),
 
+      pool.query(`
+        SELECT
+          COUNT(*) AS category_count
+        FROM tbl_category
+      `),
+
+      pool.query(`
+        SELECT
+          COUNT(*) AS total_count,
+          COUNT(*) AS sales_count,
+          COUNT(*) FILTER (WHERE LOWER(product_status) = 'hidden') AS hidden_count
+        FROM tbl_product
+      `),
+    ]);
+
+    return sendResponse(res, 200, "Dashbaord Statistics fetched successfully", {
+      products: {
+        ...productsStatistics.rows[0],
+        ...categoryStatistics.rows[0],
+      },
+      orders: ordersStatistics.rows[0],
+      coupons: couponsStatistics.rows[0],
+    }
+    );
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
+    console.error(error);
+
+    return res.status(500).json({
       statusCode: 500,
-      message: 'Internal Server Error',
+      message: error.message || "Internal Server Error",
     });
   }
 };
