@@ -39,10 +39,9 @@ app.use('/cart', cartRoutes);
 app.use('/order', orderRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/notify', notify);
-app.use("/contact", contactRoutes);
+app.use("/contact-us", contactRoutes);
 
 app.use(notFoundController);
-
 app.use(globalErrorHandler);
 
 const port = process.env.PORT || 5000;
