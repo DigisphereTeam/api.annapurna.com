@@ -38,9 +38,16 @@ app.use('/cart', cartRoutes);
 app.use('/order', orderRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/notify', notify);
-app.use("/contact",contactRoutes);
+app.use("/contact", contactRoutes);
 
 app.use(notFoundController);
+
+app.use((err, req, res, next) => {
+    res.status(err.statusCode || 500).json({
+        statusCode: err.statusCode || 500,
+        message: err.message || 'Internal Server Error'
+    });
+});
 
 const port = process.env.PORT || 5000;
 
