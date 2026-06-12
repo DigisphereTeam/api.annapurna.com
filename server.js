@@ -12,6 +12,7 @@ const carouselRoutes = require('./routes/carouselroutes');
 const cartRoutes = require('./routes/cartroutes');
 const orderRoutes = require('./routes/orderroutes');
 const dashboardRoutes = require('./routes/dashboardroutes');
+const contactRoutes = require("./routes/contactusroutes");
 const notify = require('./routes/notifyroutes');
 const sendResponse = require("./utils/sendResponse.js");
 const notFoundController = require("./utils/notFound.js")
@@ -37,6 +38,7 @@ app.use('/cart', cartRoutes);
 app.use('/order', orderRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/notify', notify);
+app.use("/contact",contactRoutes);
 
 app.use(notFoundController);
 
