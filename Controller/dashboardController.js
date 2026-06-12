@@ -45,6 +45,12 @@ exports.getOrderStatusCounts = async (req, res) => {
       },
       orders: ordersStatistics.rows[0],
       coupons: couponsStatistics.rows[0],
+      payments: {
+        failed_transactions_amount: 0,
+        total_settled_amount: 0,
+        total_successful_payments_amount: 0,
+        pending_settlements_amount: 0
+      }
     }
     );
   } catch (error) {
