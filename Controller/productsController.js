@@ -1,66 +1,5 @@
 const pool = require('../db/db')
 
-
-
-
-// exports.addproduct = async (req, res) => {
-//     try {
-
-//         const { product_name, stock, description, category_id, price_grams } = req.body;
-
-//         if (!product_name || !category_id || !price_grams) {
-//             return res.status(400).json({
-//                 statusCode: 400,
-//                 message: 'Product name, category, and price_grams are required'
-//             });
-//         }
-
-//         const productImage = req.files?.product_image?.[0]?.filename
-//             ? `uploads/${req.files.product_image[0].filename}`
-//             : null;
-
-
-//         const productQuery = `
-//             INSERT INTO public.tbl_product (product_name, product_image, stock, description,category_id,product_status)
-//             VALUES ($1, $2, $3, $4,$5,'visible') RETURNING product_id
-//         `;
-//         const productResult = await pool.query(productQuery, [product_name, productImage, stock, description, category_id]);
-//         const product_id = productResult.rows[0].product_id;
-
-
-//         const priceGramsData = Array.isArray(price_grams) ? price_grams : JSON.parse(price_grams);
-
-
-//         for (const { grams, price } of priceGramsData) {
-//             await pool.query(
-//                 `INSERT INTO public.tbl_grams (grams, price, product_id) VALUES ($1, $2, $3)`,
-//                 [grams, price, product_id]
-//             );
-//         }
-
-//         res.status(200).json({
-//             statusCode: 200,
-//             message: 'Product and price-grams added successfully',
-//             product: {
-//                 product_id,
-//                 product_name,
-//                 product_image: productImage,
-//                 stock,
-//                 description,
-//                 category_id,
-//                 price_grams: priceGramsData
-//             }
-//         });
-
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({
-//             statusCode: 500,
-//             message: 'Internal Server Error'
-//         });
-//     }
-// };
-
 exports.addproduct = async (req, res) => {
     try {
 
@@ -219,74 +158,6 @@ exports.getProductById = async (req, res) => {
         });
     }
 };
-
-
-// exports.updateProduct = async (req, res) => {
-//     try {
-//         const { product_id, product_name, stock, description, category_id, price_grams } = req.body;
-
-//         if (!product_id || !product_name || !category_id || !price_grams) {
-//             return res.status(400).json({
-//                 statusCode: 400,
-//                 message: 'Product ID, name, category, and price_grams are required'
-//             });
-//         }
-
-//         const productImage = req.files?.product_image?.[0]?.filename
-//             ? `uploads/${req.files.product_image[0].filename}`
-//             : null;
-
-
-//         const updateProductQuery = `
-//             UPDATE public.tbl_product 
-//             SET product_name = $1, stock = $2, category_id = $3, description = $4,
-//                 product_image = COALESCE($5, product_image)
-//             WHERE product_id = $6 AND product_status = 'visible'
-//             RETURNING product_id
-//         `;
-
-//         const updateResult = await pool.query(updateProductQuery, [product_name, stock, category_id, description, productImage, product_id]);
-
-//         if (updateResult.rowCount === 0) {
-//             return res.status(400).json({
-//                 statusCode: 400,
-//                 message: 'Product not found or Hidden'
-//             });
-//         }
-
-//         const priceGramsData = Array.isArray(price_grams) ? price_grams : JSON.parse(price_grams);
-
-//         await pool.query(`DELETE FROM public.tbl_grams WHERE product_id = $1`, [product_id]);
-
-//         for (const { grams, price } of priceGramsData) {
-//             await pool.query(
-//                 `INSERT INTO public.tbl_grams (grams, price, product_id) VALUES ($1, $2, $3)`,
-//                 [grams, price, product_id]
-//             );
-//         }
-
-//         res.status(200).json({
-//             statusCode: 200,
-//             message: 'Product updated successfully',
-//             product: {
-//                 product_id,
-//                 product_name,
-//                 product_image: productImage,
-//                 stock,
-//                 description,
-//                 category_id,
-//                 price_grams: priceGramsData
-//             }
-//         });
-
-//     } catch (error) {
-//         console.error("Error updating product:", error);
-//         res.status(500).json({
-//             statusCode: 500,
-//             message: 'Internal Server Error'
-//         });
-//     }
-// };
 
 exports.updateProduct = async (req, res) => {
     try {
@@ -646,7 +517,7 @@ exports.getallcategoryproducts = async (req, res) => {
         console.error("Error fetching products:", error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };
