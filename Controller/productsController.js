@@ -1,4 +1,5 @@
 const pool = require('../db/db');
+const sendErrorResponse = require('../utils/sendErrorResponse.js');
 const sendResponse = require('../utils/sendResponse.js');
 
 exports.addproduct = async (req, res) => {
@@ -456,11 +457,44 @@ exports.getallcategoryproducts = async (req, res) => {
     }
 };
 
-exports.getRecentlyViewedProducts = async (req, res) => {
+exports.getHomeProducts = async (req, res) => {
     try {
-        const query = `
+        const [featuredProducts, specialSaleProducts, recentViewedProducts] = await Promise.all([
+            pool.query(`
                 SELECT 
-                    c.cart_id , 
+                    p.product_id, 
+                    p.product_name , 
+                    cat.category_name, 
+                    p.product_image,
+                    gram.grams,
+                    gram.price,
+                    gram.stock
+                FROM tbl_product p
+                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
+                WHERE product_type = 1
+                ORDER BY product_id DESC
+                LIMIT 10
+            `),
+            pool.query(`
+                SELECT 
+                    p.product_id, 
+                    p.product_name , 
+                    cat.category_name, 
+                    p.product_image,
+                    gram.grams,
+                    gram.price,
+                    gram.stock
+                FROM tbl_product p
+                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
+                WHERE product_type = 2
+                ORDER BY product_id DESC
+                LIMIT 10
+                `)
+            ,
+            pool.query(`
+                SELECT 
                     p.product_id, 
                     p.product_name , 
                     cat.category_name, 
@@ -473,17 +507,71 @@ exports.getRecentlyViewedProducts = async (req, res) => {
                 INNER JOIN tbl_category cat ON cat.category_id = p.category_id
                 INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
                 ORDER BY cart_id DESC
-                LIMIT 10
-            `;
-
-        const result = await pool.query(query);
-
-        return sendResponse(res, 200, "Recent viwed products fetched successfully", result.rows)
+                LIMIT 10`
+            )
+        ])
+        return sendResponse(res, 200, "Home page products fetched successfully.", {
+            featured_products: featuredProducts.rows ?? [],
+            special_sale_products: specialSaleProducts.rows ?? [],
+            recent_viewed_products: recentViewedProducts.rows
+        })
     } catch (error) {
         console.error("Error fetching products:", error);
         res.status(500).json({
             statusCode: 500,
             message: error.message || "Internal Server Error",
         });
+    }
+};
+
+exports.updateProductTypeHandlers = async (req, res) => {
+    try {
+        const { product_type } = req.body;
+        const { id: product_id } = req.params;
+
+        if (!product_id) {
+            return sendErrorResponse(res, 400, "Product ID is required");
+        }
+
+        if (!Number.isInteger(Number(product_id)) || Number(product_id) <= 0) {
+            return sendErrorResponse(res, 400, "Invalid Product ID");
+        }
+
+        if (!product_type) {
+            return sendErrorResponse(res, 400, "Product type is required");
+        }
+
+        if (![1, 2].includes(Number(product_type))) {
+            return sendErrorResponse(res, 400, "Invalid product type");
+        }
+
+        const product = await pool.query(
+            `
+            SELECT product_id
+            FROM tbl_product
+            WHERE product_id = $1
+            `,
+            [product_id]
+        );
+
+        if (product.rows.length === 0) {
+            return sendErrorResponse(res, 404, "Product id not found");
+        }
+
+        const updatedProduct = await pool.query(
+            `
+            UPDATE tbl_product
+            SET product_type = $1
+            WHERE product_id = $2
+            RETURNING product_id , product_type
+            `,
+            [product_type, product_id]
+        );
+
+        return sendResponse(res, 200, "Product type updated successfully", updatedProduct.rows[0]);
+
+    } catch (error) {
+        console.error(error);
+        return sendErrorResponse(res, 500, error.message || "Internal Server Error");
     }
 };

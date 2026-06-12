@@ -1,5 +1,5 @@
 const pool = require('../db/db');
-const sendErroResponse = require('../utils/sendErrorResponse.js');
+const sendErrorResponse = require('../utils/sendErrorResponse.js');
 const sendResponse = require('../utils/sendResponse.js');
 
 exports.getOrderStatusCounts = async (req, res) => {
@@ -68,7 +68,7 @@ exports.getOrderStatusCounts = async (req, res) => {
 exports.getOrdersByStatus = async (req, res) => {
   const { status } = req.body;
   if (!status) {
-    return sendErroResponse(res, 400, "Status is required");
+    return sendErrorResponse(res, 400, "Status is required");
   }
 
   try {

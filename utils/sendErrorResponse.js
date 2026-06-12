@@ -1,4 +1,4 @@
-function sendErroResponse(res , statusCode , message){
+function sendErrorResponse(res , statusCode , message){
     return res.status(statusCode).json({
         success : false,
         statusCode,
@@ -6,4 +6,4 @@ function sendErroResponse(res , statusCode , message){
     })
 }   
 
-module.exports = sendErroResponse;
+module.exports = sendErrorResponse;
