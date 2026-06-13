@@ -101,7 +101,7 @@ exports.forgotPassword = async (req, res) => {
         }
 
         const user = await pool.query(
-            "SELECT * FROM tbl_users WHERE email = $1",
+            "SELECT user_id , email FROM tbl_users WHERE email = $1",
             [email]
         );
 
@@ -126,7 +126,9 @@ exports.forgotPassword = async (req, res) => {
 
         return res.status(200).json({
             statusCode: 200,
-            message: "OTP sent successfully"
+            message: "OTP sent successfully",
+            data: user.rows[0]
+            
         });
 
     } catch (error) {
