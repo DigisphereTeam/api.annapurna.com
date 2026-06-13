@@ -96,6 +96,9 @@ exports.userSignin = async (req, res) => {
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
+        if (!email) {
+            return sendErrorResponse(res, 400, "Email is required")
+        }
 
         const user = await pool.query(
             "SELECT * FROM tbl_users WHERE email = $1",
@@ -138,6 +141,10 @@ exports.forgotPassword = async (req, res) => {
 exports.verifyForgotPasswordOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return sendErrorResponse(res, 400, "Email and otp are required")
+        }
 
         const result = await pool.query(
             `SELECT *
