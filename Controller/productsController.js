@@ -470,7 +470,13 @@ exports.getHomeProducts = async (req, res) => {
                         json_build_object(
                             'grams', gram.grams,
                             'price', gram.price,
-                            'stock', gram.stock
+                            'stock', gram.stock,
+                            'stock_status',
+                                CASE
+                                    WHEN gram.stock = 0 THEN 'out_of_stock'
+                                    ELSE 'in_stock'
+                                END,
+                            'pricegrams_id', gram.pricegrams_id
                         )
                         ORDER BY gram.grams
                     ) AS grams
@@ -498,7 +504,13 @@ exports.getHomeProducts = async (req, res) => {
                         json_build_object(
                             'grams', gram.grams,
                             'price', gram.price,
-                            'stock', gram.stock
+                            'stock', gram.stock,
+                            'stock_status',
+                                CASE
+                                    WHEN gram.stock = 0 THEN 'out_of_stock'
+                                    ELSE 'in_stock'
+                                END,
+                            'pricegrams_id', gram.pricegrams_id
                         )
                         ORDER BY gram.grams
                     ) AS grams
@@ -527,7 +539,13 @@ exports.getHomeProducts = async (req, res) => {
                         json_build_object(
                             'grams', gram.grams,
                             'price', gram.price,
-                            'stock', gram.stock
+                            'stock', gram.stock,
+                            'stock_status',
+                                CASE
+                                    WHEN gram.stock = 0 THEN 'out_of_stock'
+                                    ELSE 'in_stock'
+                                END,
+                            'pricegrams_id', gram.pricegrams_id
                         )
                         ORDER BY gram.grams
                     ) AS grams
