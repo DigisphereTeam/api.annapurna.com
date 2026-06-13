@@ -9,6 +9,7 @@ router.post('/getuser',usercontroller.getuserByid);
 router.post('/updateUser',usercontroller.updateUser);
 router.post('/forgotPassword',usercontroller.forgotPassword);
 router.post('/verifyForgotPasswordOtp',usercontroller.verifyForgotPasswordOtp);
+router.post('/resetPassword',usercontroller.resetPassword);
 
 router.patch("/:id/password" , usercontroller.changePassword)
 

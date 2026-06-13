@@ -175,8 +175,40 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
     }
 };
 
+exports.resetPassword = async (req, res) => {
+    try {
+        const { email, password, confirm_password } = req.body;
 
+        if (password !== confirm_password) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Passwords do not match"
+            });
+        }
 
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await pool.query(
+            `UPDATE tbl_users
+             SET password = $1,
+                 otp = NULL,
+                 otp_expiry = NULL
+             WHERE email = $2`,
+            [hashedPassword, email]
+        );
+
+        return res.status(200).json({
+            statusCode: 200,
+            message: "Password reset successfully"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            statusCode: 500,
+            message: error.message
+        });
+    }
+};
 
 
 exports.getallusers = async (req, res) => {
