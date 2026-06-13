@@ -147,7 +147,7 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
         }
 
         const result = await pool.query(
-            `SELECT *
+            `SELECT user_id ,  email
              FROM tbl_users
              WHERE email = $1
              AND otp = $2
@@ -164,7 +164,8 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
 
         return res.status(200).json({
             statusCode: 200,
-            message: "OTP verified successfully"
+            message: "OTP verified successfully",
+            data: result.rows[0]
         });
 
     } catch (error) {
