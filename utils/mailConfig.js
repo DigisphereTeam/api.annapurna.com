@@ -17,9 +17,9 @@ transporter.verify(() => {
 
 exports.sendContactMail = async (data) => {
   await transporter.sendMail({
-    from: `"Annapurna" <${process.env.HOSTINGER_MAIL_USER}>`,
+    from: `"Annapurna farms" <${process.env.HOSTINGER_MAIL_USER}>`,
     to: process.env.ADMIN_MAIL,
-    subject: "Annapurna New Contact Enquiry",
+    subject: "Annapurna farms New Contact Enquiry",
     text: `
         name: ${data.name}
         Phone: ${data.phone_number}
@@ -31,7 +31,7 @@ exports.sendContactMail = async (data) => {
 
 exports.sendOtpMail = async (email, otp) => {
   await transporter.sendMail({
-    from: `"Annapurna" <${process.env.HOSTINGER_MAIL_USER}>`,
+    from: `"Annapurna farms" <${process.env.HOSTINGER_MAIL_USER}>`,
     to: email,
     subject: "OTP Verification",
     html: `
@@ -40,8 +40,8 @@ exports.sendOtpMail = async (email, otp) => {
           <div style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
             
             <!-- Header -->
-            <div style="background: #4a90e2; padding: 20px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0;">Annapurna</h1>
+            <div style="background: #198754; padding: 20px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0;">Annapurna farms</h1>
               <p style="color: #e6f0ff; margin: 5px 0 0;">Empowering Your Learning Journey</p>
             </div>
 
@@ -52,7 +52,7 @@ exports.sendOtpMail = async (email, otp) => {
               
               <p style="color: #555; font-size: 14px;">
                 Hello,<br><br>
-                Thank you for registering with <b>Annapurna</b>.  
+                Thank you for registering with <b>Annapurna farms</b>.  
                 Please use the OTP below to verify your email address.
               </p>
 
@@ -64,8 +64,8 @@ exports.sendOtpMail = async (email, otp) => {
                   font-size: 24px;
                   letter-spacing: 5px;
                   font-weight: bold;
-                  color: #4a90e2;
-                  border: 2px dashed #4a90e2;
+                  color: #198754;
+                  border: 2px dashed #198754;
                   border-radius: 8px;
                 ">
                   ${otp}
@@ -85,7 +85,7 @@ exports.sendOtpMail = async (email, otp) => {
             <!-- Footer -->
             <div style="background: #f0f0f0; padding: 15px; text-align: center;">
               <p style="font-size: 12px; color: #888; margin: 0;">
-                © ${new Date().getFullYear()} Annapurna. All rights reserved.
+                © ${new Date().getFullYear()} Annapurna farms. All rights reserved.
               </p>
             </div>
 
@@ -97,7 +97,7 @@ exports.sendOtpMail = async (email, otp) => {
 
 exports.sendforgotpasswordOtpMail = async (email, otp) => {
   await transporter.sendMail({
-    from: `"Annapurna" <${process.env.HOSTINGER_MAIL_USER}>`,
+    from: `"Annapurna farms" <${process.env.HOSTINGER_MAIL_USER}>`,
     to: email,
     subject: "Reset Your Password - Annapurna OTP",
     html: `
@@ -106,8 +106,8 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
               <div style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                 
                 <!-- Header -->
-                <div style="background: #4a90e2; padding: 20px; text-align: center;">
-                  <h1 style="color: #ffffff; margin: 0;">Annapurna</h1>
+                <div style="background: #198754; padding: 20px; text-align: center;">
+                  <h1 style="color: #ffffff; margin: 0;">Annapurna farms</h1>
                   <p style="color: #e6f0ff; margin: 5px 0 0;">Secure Password Reset</p>
                 </div>
 
@@ -118,7 +118,7 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
                   
                   <p style="color: #555; font-size: 14px;">
                     Hello,<br><br>
-                    We received a request to reset your password for your <b>Annapurna</b> account.
+                    We received a request to reset your password for your <b>Annapurna farms</b> account.
                   </p>
 
                   <p style="color: #555; font-size: 14px;">
@@ -133,8 +133,8 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
                       font-size: 24px;
                       letter-spacing: 5px;
                       font-weight: bold;
-                      color: #4a90e2;
-                      border: 2px dashed #4a90e2;
+                      color: #198754;
+                      border: 2px dashed #198754;
                       border-radius: 8px;
                     ">
                       ${otp}
@@ -154,7 +154,7 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
                 <!-- Footer -->
                 <div style="background: #f0f0f0; padding: 15px; text-align: center;">
                   <p style="font-size: 12px; color: #888; margin: 0;">
-                    © ${new Date().getFullYear()} Annapurna. All rights reserved.
+                    © ${new Date().getFullYear()} Annapurna farms. All rights reserved.
                   </p>
                 </div>
 
