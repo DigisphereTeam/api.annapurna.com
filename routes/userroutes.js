@@ -8,5 +8,7 @@ router.get('/getallusers',usercontroller.getallusers);
 router.post('/getuser',usercontroller.getuserByid);
 router.post('/updateUser',usercontroller.updateUser);
 
+router.patch("/:id/password" , usercontroller.changePassword)
+
 module.exports=router
  

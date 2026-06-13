@@ -1,5 +1,6 @@
 const pool = require('../db/db');
 const bcrypt = require('bcryptjs');
+const sendErrorResponse = require('../utils/sendErrorResponse.js');
 
 
 exports.userRegister = async (req, res) => {
@@ -12,16 +13,17 @@ exports.userRegister = async (req, res) => {
         }
 
         if (password !== confirm_password) {
-            return res.status(400).json({ 
+            return res.status(400).json({
                 statusCode: 400,
-                message: "Password and Confirm Password must be the same" 
+                message: "Password and Confirm Password must be the same"
             });
         }
         const existUser = await pool.query('SELECT * FROM public.tbl_users WHERE email=$1', [email]);
         if (existUser.rows.length > 0) {
-            return res.status(400).json({ 
-                stausCode:400,
-                message: 'email already exists' });
+            return res.status(400).json({
+                stausCode: 400,
+                message: 'email already exists'
+            });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -43,38 +45,38 @@ exports.userRegister = async (req, res) => {
 exports.userSignin = async (req, res) => {
     const { email, password } = req.body;
 
- 
+
     if (!email || !password) {
-        return res.status(400).json({ 
+        return res.status(400).json({
             statusCode: 400,
             message: "Email and password are required"
         });
     }
 
     try {
-       
+
         const result = await pool.query("SELECT * FROM tbl_users WHERE email=$1", [email]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ 
+            return res.status(404).json({
                 statusCode: 404,
-                message: "User not found" 
+                message: "User not found"
             });
         }
 
         const user = result.rows[0];
- 
+
         const isMatch = await bcrypt.compare(password, user.password);
 
-       
-        if (!isMatch) { 
-            return res.status(401).json({ 
+
+        if (!isMatch) {
+            return res.status(401).json({
                 statusCode: 401,
-                message: "Invalid credentials" 
+                message: "Invalid credentials"
             });
         }
 
-       
+
         res.status(200).json({
             statusCode: 200,
             message: "Login Successful",
@@ -83,123 +85,209 @@ exports.userSignin = async (req, res) => {
 
     } catch (error) {
         console.error("Error during login:", error);
-        res.status(500).json({ 
+        res.status(500).json({
             statusCode: 500,
-            message: "Internal Server Error" 
+            message: "Internal Server Error"
         });
     }
 };
 
 
-exports.getallusers=async(req,res)=>{
-    try
-    {
-        const alluser=await pool.query("SELECT * FROM tbl_users");
+exports.getallusers = async (req, res) => {
+    try {
+        const alluser = await pool.query("SELECT * FROM tbl_users");
         res.status(200).json({
-            statusCode:200,
-            message:'User Fetched Sucessfully',
-            users:alluser.rows,
+            statusCode: 200,
+            message: 'User Fetched Sucessfully',
+            users: alluser.rows,
         })
-    }catch(err){
-        res.status(500).json({message:'Internal Server error'})
+    } catch (err) {
+        res.status(500).json({ message: 'Internal Server error' })
     }
 }
 
-exports.getuserByid=async(req,res)=>{
-    try
-    {
-        const {user_id}=req.body;
-        
-        const userid=await pool.query(
+exports.getuserByid = async (req, res) => {
+    try {
+        const { user_id } = req.body;
+
+        const userid = await pool.query(
             "SELECT * FROM tbl_users WHERE user_id=$1",
-            [user_id] 
+            [user_id]
         );
 
-        if(userid.rows.length ===0){
+        if (userid.rows.length === 0) {
             return res.status(404).json({
-                statusCode:404,
-                message:"user not found"
+                statusCode: 404,
+                message: "user not found"
             })
         }
         res.status(200).json({
-            statusCode:200,
-            message:'User fectched sucessfully',
-            user:userid.rows[0]
+            statusCode: 200,
+            message: 'User fectched sucessfully',
+            user: userid.rows[0]
         })
-    }catch(error){
+    } catch (error) {
         res.status(500).json({
-            statusCode:500,
-            message:'internal Server error'
+            statusCode: 500,
+            message: 'internal Server error'
         })
     }
 }
 
 
-exports.updateUser=async(req,res)=>{
-    try{
-    const { user_id,first_name, last_name, phone_number,street,city,state,pincode}=req.body
-    const fileds=[];
-    const values=[];
-    let index=1;
-    
-    if(first_name){
-        fileds.push(`"first_name"=$${index++}`);
-        values.push(first_name)
-    }
-    if(last_name){
-        fileds.push(`"last_name"=$${index++}`);
-        values.push(last_name)
-    }
-    if(phone_number){
-        fileds.push(`"phone_number"=$${index++}`)
-        values.push(phone_number)
-    }
-    if(street){
-        fileds.push(`"street"=$${index++}`)
-        values.push(street)
-    }
-    if(city){
-        fileds.push(`"city"=$${index++}`)
-        values.push(city)
-    }
-    if(state){
-        fileds.push(`"state"=$${index++}`)
-        values.push(state)
-    }
-    if(pincode){
-        fileds.push(`"pincode"=$${index++}`)
-        values.push(pincode)
-    }
-    values.push(user_id);
-    if(fileds.length === 0){
-        return res.status(400).json({
-            statusCode:400,
-            message:'No fileds provided to update'
-        })
-    }
-    const query=`
+exports.updateUser = async (req, res) => {
+    try {
+        const { user_id, first_name, last_name, phone_number, street, city, state, pincode } = req.body
+        const fileds = [];
+        const values = [];
+        let index = 1;
+
+        if (first_name) {
+            fileds.push(`"first_name"=$${index++}`);
+            values.push(first_name)
+        }
+        if (last_name) {
+            fileds.push(`"last_name"=$${index++}`);
+            values.push(last_name)
+        }
+        if (phone_number) {
+            fileds.push(`"phone_number"=$${index++}`)
+            values.push(phone_number)
+        }
+        if (street) {
+            fileds.push(`"street"=$${index++}`)
+            values.push(street)
+        }
+        if (city) {
+            fileds.push(`"city"=$${index++}`)
+            values.push(city)
+        }
+        if (state) {
+            fileds.push(`"state"=$${index++}`)
+            values.push(state)
+        }
+        if (pincode) {
+            fileds.push(`"pincode"=$${index++}`)
+            values.push(pincode)
+        }
+        values.push(user_id);
+        if (fileds.length === 0) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: 'No fileds provided to update'
+            })
+        }
+        const query = `
     UPDATE tbl_users
     SET ${fileds.join(', ')}
     WHERE "user_id"=$${index++}
     RETURNING *`
-    const  result=await pool.query(query,values);
-    if(result.rowCount ===0){
-        return res.status(404).json({
-            statusCode:404,
-            message:'User Not Found'
-        
-        })
-    }
-    res.status(200).json({
-        statusCode:200,
-        message:'User Updated Sucesfully',
-        user:result.rows[0],
+        const result = await pool.query(query, values);
+        if (result.rowCount === 0) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: 'User Not Found'
 
-    })
-    }catch(error){
+            })
+        }
+        res.status(200).json({
+            statusCode: 200,
+            message: 'User Updated Sucesfully',
+            user: result.rows[0],
+
+        })
+    } catch (error) {
         res.status(500).json({  // ✅ Fixed typo: staus → status
             statusCode: 500,
             message: 'Internal Server Error',
         });
     }
 }
+
+exports.changePassword = async (req, res) => {
+    try {
+        const { id: user_id } = req.params;
+        if (!user_id) {
+            return sendErrorResponse(res, 400, "User id is required");
+        }
+        if (!Number.isInteger(Number(user_id)) || Number(user_id) <= 0) {
+            return sendErrorResponse(res, 400, "Invalid user id");
+        }
+        const { old_password, new_password, confirm_new_password } = req.body;
+
+        if (!old_password || !new_password || !confirm_new_password) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "old_password, new_password and confirm_new_password are required",
+            });
+        }
+
+        if (new_password !== confirm_new_password) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "New password and Confirm new password must be the same"
+            });
+        }
+
+        const userResult = await pool.query(`
+            SELECT user_id, password
+            FROM tbl_users
+            WHERE user_id = $1`,
+            [user_id]
+        );
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "User not found",
+            });
+        }
+
+        const user = userResult.rows[0];
+
+        const isMatch = await bcrypt.compare(
+            old_password,
+            user.password
+        );
+
+        if (!isMatch) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Old password is incorrect",
+            });
+        }
+
+        const isSamePassword = await bcrypt.compare(
+            new_password,
+            user.password
+        );
+
+        if (isSamePassword) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "New password must be different from old password",
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(new_password, 10);
+
+        await pool.query(`
+            UPDATE tbl_users
+            SET password = $1,
+            confirm_password = $1
+            WHERE user_id = $2`,
+            [hashedPassword, user_id]
+        );
+
+        return res.status(200).json({
+            statusCode: 200,
+            message: "Password changed successfully",
+        });
+    } catch (error) {
+        console.error("Change Password Error:", error);
+        return res.status(500).json({
+            statusCode: 500,
+            message: error.message || "Internal server error",
+        });
+    }
+};

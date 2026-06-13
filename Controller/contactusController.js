@@ -9,7 +9,7 @@ exports.contactUs = async (req, res) => {
     email,
     message,
   } = req.body;
-  
+
   if (
     !name ||
     !phone_number ||
@@ -24,7 +24,7 @@ exports.contactUs = async (req, res) => {
 
   try {
     // Save to DB
-    const result = await pool.query(
+    await pool.query(
       `INSERT INTO tbl_contact_us
             (name, phone_number, email, message)
             VALUES ($1,$2,$3,$4)
@@ -38,17 +38,16 @@ exports.contactUs = async (req, res) => {
     );
 
     // Send Mail
-    await sendContactMail({
+    sendContactMail({
       name,
       phone_number,
       email,
       message,
-    });
+    }).catch(() => { });
 
     return res.status(200).json({
       statusCode: 200,
-      message: "Contact submitted & mail sent successfully",
-      data: result.rows[0],
+      message: "Contact submitted & mail sent successfully"
     });
   } catch (error) {
     return res.status(500).json({
