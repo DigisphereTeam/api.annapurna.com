@@ -122,13 +122,13 @@ exports.forgotPassword = async (req, res) => {
             [otp, email]
         );
 
-        sendforgotpasswordOtpMail(email, otp);
+        sendforgotpasswordOtpMail(email, otp).catch((error) => { console.log(error) });
 
         return res.status(200).json({
             statusCode: 200,
             message: "OTP sent successfully",
             data: user.rows[0]
-            
+
         });
 
     } catch (error) {
