@@ -99,7 +99,7 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
   await transporter.sendMail({
     from: `"Annapurna farms" <${process.env.HOSTINGER_MAIL_USER}>`,
     to: email,
-    subject: "Reset Your Password - Annapurna OTP",
+    subject: "Reset Your Password - Annapurna farms OTP",
     html: `
             <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
               
