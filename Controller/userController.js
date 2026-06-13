@@ -122,7 +122,7 @@ exports.forgotPassword = async (req, res) => {
             [otp, email]
         );
 
-        await sendforgotpasswordOtpMail(email, otp);
+        sendforgotpasswordOtpMail(email, otp);
 
         return res.status(200).json({
             statusCode: 200,
