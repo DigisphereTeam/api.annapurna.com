@@ -462,52 +462,90 @@ exports.getHomeProducts = async (req, res) => {
         const [featuredProducts, specialSaleProducts, recentViewedProducts] = await Promise.all([
             pool.query(`
                 SELECT 
-                    p.product_id, 
-                    p.product_name , 
-                    cat.category_name, 
+                    p.product_id,
+                    p.product_name,
+                    cat.category_name,
                     p.product_image,
-                    gram.grams,
-                    gram.price,
-                    gram.stock
+                    json_agg(
+                        json_build_object(
+                            'grams', gram.grams,
+                            'price', gram.price,
+                            'stock', gram.stock
+                        )
+                        ORDER BY gram.grams
+                    ) AS grams
                 FROM tbl_product p
-                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
-                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
-                WHERE product_type = 1
-                ORDER BY product_id DESC
-                LIMIT 10
+                INNER JOIN tbl_category cat 
+                    ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram 
+                    ON gram.product_id = p.product_id
+                WHERE p.product_type = 1
+                GROUP BY 
+                    p.product_id,
+                    p.product_name,
+                    cat.category_name,
+                    p.product_image
+                ORDER BY p.product_id DESC
+                LIMIT 10;
             `),
             pool.query(`
                 SELECT 
-                    p.product_id, 
-                    p.product_name , 
-                    cat.category_name, 
+                    p.product_id,
+                    p.product_name,
+                    cat.category_name,
                     p.product_image,
-                    gram.grams,
-                    gram.price,
-                    gram.stock
+                    json_agg(
+                        json_build_object(
+                            'grams', gram.grams,
+                            'price', gram.price,
+                            'stock', gram.stock
+                        )
+                        ORDER BY gram.grams
+                    ) AS grams
                 FROM tbl_product p
-                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
-                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
-                WHERE product_type = 2
-                ORDER BY product_id DESC
-                LIMIT 10
+                INNER JOIN tbl_category cat 
+                    ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram 
+                    ON gram.product_id = p.product_id
+                WHERE p.product_type = 2
+                GROUP BY 
+                    p.product_id,
+                    p.product_name,
+                    cat.category_name,
+                    p.product_image
+                ORDER BY p.product_id DESC
+                LIMIT 10;
                 `)
             ,
             pool.query(`
                 SELECT 
-                    p.product_id, 
-                    p.product_name , 
-                    cat.category_name, 
+                    p.product_id,
+                    p.product_name,
+                    cat.category_name,
                     p.product_image,
-                    gram.grams,
-                    gram.price,
-                    gram.stock
+                    json_agg(
+                        json_build_object(
+                            'grams', gram.grams,
+                            'price', gram.price,
+                            'stock', gram.stock
+                        )
+                        ORDER BY gram.grams
+                    ) AS grams
                 FROM tbl_cart c
-                INNER JOIN tbl_product p ON c.product_id = p.product_id
-                INNER JOIN tbl_category cat ON cat.category_id = p.category_id
-                INNER JOIN tbl_grams gram ON gram.product_id = p.product_id
-                ORDER BY cart_id DESC
-                LIMIT 10`
+                INNER JOIN tbl_product p 
+                    ON c.product_id = p.product_id
+                INNER JOIN tbl_category cat 
+                    ON cat.category_id = p.category_id
+                INNER JOIN tbl_grams gram 
+                    ON gram.product_id = p.product_id
+                GROUP BY
+                    p.product_id,
+                    p.product_name,
+                    cat.category_name,
+                    p.product_image
+                ORDER BY MAX(c.cart_id) DESC
+                LIMIT 10;
+                `
             )
         ])
         return sendResponse(res, 200, "Home page products fetched successfully.", {
