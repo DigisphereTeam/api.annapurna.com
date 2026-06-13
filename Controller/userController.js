@@ -1,6 +1,7 @@
 const pool = require('../db/db');
 const bcrypt = require('bcryptjs');
 const sendErrorResponse = require('../utils/sendErrorResponse.js');
+const { sendforgotpasswordOtpMail } = require("../utils/mailConfig");
 
 
 exports.userRegister = async (req, res) => {
@@ -91,6 +92,84 @@ exports.userSignin = async (req, res) => {
         });
     }
 };
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        const user = await pool.query(
+            "SELECT * FROM tbl_users WHERE email = $1",
+            [email]
+        );
+
+        if (user.rows.length === 0) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "User not found"
+            });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await pool.query(
+            `UPDATE tbl_users
+             SET otp = $1,
+                 otp_expiry = NOW() + INTERVAL '5 minutes'
+             WHERE email = $2`,
+            [otp, email]
+        );
+
+        await sendforgotpasswordOtpMail(email, otp);
+
+        return res.status(200).json({
+            statusCode: 200,
+            message: "OTP sent successfully"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            statusCode: 500,
+            message: error.message
+        });
+    }
+};
+
+
+exports.verifyForgotPasswordOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        const result = await pool.query(
+            `SELECT *
+             FROM tbl_users
+             WHERE email = $1
+             AND otp = $2
+             AND otp_expiry > NOW()`,
+            [email, otp]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Invalid or expired OTP"
+            });
+        }
+
+        return res.status(200).json({
+            statusCode: 200,
+            message: "OTP verified successfully"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            statusCode: 500,
+            message: error.message
+        });
+    }
+};
+
+
+
 
 
 exports.getallusers = async (req, res) => {
