@@ -569,7 +569,7 @@ exports.getHomeProducts = async (req, res) => {
         return sendResponse(res, 200, "Home page products fetched successfully.", {
             featured_products: featuredProducts.rows ?? [],
             special_sale_products: specialSaleProducts.rows ?? [],
-            recent_viewed_products: recentViewedProducts.rows
+            recent_viewed_products: recentViewedProducts.rows ?? []
         })
     } catch (error) {
         console.error("Error fetching products:", error);
