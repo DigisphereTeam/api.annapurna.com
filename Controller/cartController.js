@@ -96,7 +96,7 @@ exports.getcartuserByid = async (req, res) => {
                 p.product_id,
                 p.product_name,
                 p.product_image,
-                p.stock,
+                g.stock,
                 g.pricegrams_id,
                 g.grams,
                 g.price
