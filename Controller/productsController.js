@@ -479,7 +479,7 @@ exports.getHomeProducts = async (req, res) => {
                             'pricegrams_id', gram.pricegrams_id
                         )
                         ORDER BY gram.grams
-                    ) AS grams
+                    ) AS pricegrams
                 FROM tbl_product p
                 INNER JOIN tbl_category cat 
                     ON cat.category_id = p.category_id
@@ -513,7 +513,7 @@ exports.getHomeProducts = async (req, res) => {
                             'pricegrams_id', gram.pricegrams_id
                         )
                         ORDER BY gram.grams
-                    ) AS grams
+                    ) AS pricegrams
                 FROM tbl_product p
                 INNER JOIN tbl_category cat 
                     ON cat.category_id = p.category_id
@@ -548,7 +548,7 @@ exports.getHomeProducts = async (req, res) => {
                             'pricegrams_id', gram.pricegrams_id
                         )
                         ORDER BY gram.grams
-                    ) AS grams
+                    ) AS pricegrams
                 FROM tbl_cart c
                 INNER JOIN tbl_product p 
                     ON c.product_id = p.product_id
