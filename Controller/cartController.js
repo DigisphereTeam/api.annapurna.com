@@ -1,4 +1,6 @@
 const pool = require('../db/db');
+const sendErrorResponse = require('../utils/sendErrorResponse.js');
+const sendResponse = require('../utils/sendResponse.js');
 
 exports.addCart = async (req, res) => {
     const { product_id, pricegrams_id, quantity, user_id, price } = req.body;
@@ -292,3 +294,36 @@ exports.deleteallCart = async (req, res) => {
         });
     }
 };
+
+exports.getCartCountByUserIdHandlers = async (req, res) => {
+    if (!req.body.user_id) {
+        return sendErrorResponse(res, 400, "User id is required");
+    }
+    const userId = Number(req.body.user_id);
+    if (!Number.isInteger(userId) || userId <= 0) {
+        return sendErrorResponse(res, 400, "Invalid user id");
+    }
+    try {
+        const userResult = await pool.query(
+            `SELECT 1 FROM tbl_users WHERE user_id = $1`,
+            [userId]
+        );
+
+        if (userResult.rowCount === 0) {
+            return sendErrorResponse(res, 404, "User not found");
+        }
+        const cartCount = await pool.query(`
+            SELECT 
+                COUNT(*) as cart_count
+            FROM tbl_cart
+            WHERE user_id = $1
+            `,
+            [userId]
+        );
+        return sendResponse(res, 200, "Cart count fetched successfully", cartCount.rows[0]);
+    }
+    catch (error) {
+        console.error(error.message);
+        return sendErrorResponse(res, 500, error.message || "Internal Server Error");
+    }
+}

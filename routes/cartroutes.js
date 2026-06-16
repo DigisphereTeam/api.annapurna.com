@@ -10,6 +10,8 @@ router.post('/deletecart',cartcontroller.deleteCart);
 router.post('/deleteallcart',cartcontroller.deleteallCart);
 router.get('/getallcarts',cartcontroller.getallCarts);
 
+router.post("/count", cartcontroller.getCartCountByUserIdHandlers);
+
 
 module.exports=router
  
