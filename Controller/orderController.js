@@ -53,13 +53,25 @@ exports.addOrder = async (req, res) => {
       `SELECT order_number FROM public.tbl_order ORDER BY order_id DESC LIMIT 1`
     );
 
-    let newOrderNumber = 'AF_0001';
-    if (lastOrderNumberResult.rows.length > 0 && lastOrderNumberResult.rows[0].order_number) {
-      const lastOrderNumber = lastOrderNumberResult.rows[0].order_number;
-      const lastNumber = parseInt(lastOrderNumber.split('_')[1]);
-      const nextNumber = lastNumber + 1;
-      newOrderNumber = 'AF_' + nextNumber.toString().padStart(4, '0');
-    }
+    const now = new Date();
+
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = String(now.getFullYear()).slice(-2);
+
+    const datePrefix = `AF_${day}_${month}_${year}`;
+
+    const countResult = await pool.query(
+      `
+          SELECT COUNT(*) AS count
+          FROM tbl_order
+          WHERE order_number LIKE $1
+          `,
+      [`${datePrefix}_%`]
+    );
+
+    const count = Number(countResult.rows[0].count) + 1;
+    const newOrderNumber = `${datePrefix}_${String(count).padStart(4, '0')}`;
 
     // 4️⃣ Insert into tbl_order
     const orderResult = await pool.query(
