@@ -199,7 +199,7 @@ exports.getorders = async (req, res) => {
         ON 
           o.user_id = u.user_id
         ORDER BY 
-          o.order_date DESC
+          o.order_id DESC
       `);
 
     res.status(200).json({
