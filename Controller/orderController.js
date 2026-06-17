@@ -177,42 +177,63 @@ exports.getOrderDetailsByUserId = async (req, res) => {
 
 exports.getorders = async (req, res) => {
   try {
-    const result = await pool.query(`
-        SELECT 
-          o.order_id,
-          o.order_number,
-          u.first_name AS  first_name,
-          u.last_name AS  last_name,
-          o.address,
-          o.city,
-          o.state,
-          o.pincode,
-          o.phonenumber,
-          o.total_amount,
-          o.order_status,
-          o.order_date
-          
-        FROM 
-          tbl_order o
-        JOIN 
-          tbl_users u 
-        ON 
-          o.user_id = u.user_id
-        ORDER BY 
-          o.order_id DESC
-      `);
+    const { order_status } = req.query;
+
+    let result;
+
+    if (order_status) {
+      result = await pool.query(
+        `SELECT 
+            o.order_id,
+            o.order_number,
+            u.first_name,
+            u.last_name,
+            o.address,
+            o.city,
+            o.state,
+            o.pincode,
+            o.phonenumber,
+            o.total_amount,
+            o.order_status,
+            o.order_date
+         FROM tbl_order o
+         JOIN tbl_users u ON o.user_id = u.user_id
+         WHERE o.order_status = $1
+         ORDER BY o.order_id DESC`,
+        [order_status]
+      );
+    } else {
+      result = await pool.query(
+        `SELECT 
+            o.order_id,
+            o.order_number,
+            u.first_name,
+            u.last_name,
+            o.address,
+            o.city,
+            o.state,
+            o.pincode,
+            o.phonenumber,
+            o.total_amount,
+            o.order_status,
+            o.order_date
+         FROM tbl_order o
+         JOIN tbl_users u ON o.user_id = u.user_id
+         ORDER BY o.order_id DESC`
+      );
+    }
 
     res.status(200).json({
       statusCode: 200,
-      message: 'Orders fetched successfully',
+      message: "Orders fetched successfully",
       data: result.rows,
     });
 
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
     res.status(500).json({
       statusCode: 500,
-      message: 'Internal Server Error',
+      message: "Internal Server Error",
     });
   }
 };
