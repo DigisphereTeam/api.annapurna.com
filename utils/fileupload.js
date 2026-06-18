@@ -18,7 +18,7 @@ if (!fs.existsSync(uploadDir)) {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 50 * 1024 * 1024, 
+    fileSize: 50 * 1024 , 
     files: 5
   },
   fileFilter: (req, file, cb) => {
