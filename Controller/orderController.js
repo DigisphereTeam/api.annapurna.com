@@ -120,7 +120,7 @@ exports.addOrder = async (req, res) => {
 
   } catch (error) {
     console.error('Error in addOrder:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: error.message || 'Internal server error' });
   }
 };
 
@@ -170,7 +170,7 @@ exports.getOrderDetailsByUserId = async (req, res) => {
 
   } catch (error) {
     console.error("Error fetching order details:", error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: error.message || 'Internal server error' });
   }
 };
 
@@ -343,7 +343,7 @@ exports.updateOrderStatus = async (req, res) => {
     console.error("Error updating product status:", error);
     res.status(500).json({
       statusCode: 500,
-      message: 'Internal Server Error'
+      message: error.message || 'Internal Server Error'
     });
   }
 };

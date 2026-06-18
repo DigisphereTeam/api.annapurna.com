@@ -40,7 +40,7 @@ exports.notifyRequest = async (req, res) => {
         console.error("Error adding notify request:", error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };
@@ -88,7 +88,7 @@ exports.getAllNotifyRequests = async (req, res) => {
         console.error("Error in getAllNotifyRequests:", error);
         res.status(500).json({
             statusCode: 500,
-            message: "Internal Server Error"
+            message: error.message || "Internal Server Error"
         });
     }
 };
@@ -192,7 +192,7 @@ exports.updateAndDeleteNotify = async (req, res) => {
         console.error("Error:", error);
         return res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };

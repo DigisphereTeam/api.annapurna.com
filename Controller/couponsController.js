@@ -31,7 +31,7 @@ exports.addCoupon = async (req, res) => {
             coupon: coupon.rows[0],
         })
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' })
+        res.status(500).json({ message: error.message || 'Internal server error' })
     }
 }
 
@@ -76,7 +76,7 @@ exports.getcouponsByid=async(req,res)=>{
     }catch(error){
         res.status(500).json({
             statusCode:500,
-            message:'internal Server error'
+            message: error.message || 'Internal Server error'
         })
     }
 }
@@ -148,7 +148,7 @@ exports.updatecoupon=async(req,res)=>{
     }catch(error){
         res.status(500).json({  
             statusCode: 500,
-            message: 'Internal Server Error',
+            message: error.message || 'Internal Server Error',
         });
     }
 }
@@ -193,7 +193,7 @@ exports.deleteCoupon = async (req, res) => {
         
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error',
+            message: error.message || 'Internal Server Error',
         });
     }
 };
@@ -214,7 +214,7 @@ exports.getactiveCoupons = async (req, res) => {
         console.error("Error fetching active coupons:", err);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };

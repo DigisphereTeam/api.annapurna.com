@@ -54,7 +54,7 @@ exports.addproduct = async (req, res) => {
         console.error(error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };
@@ -244,7 +244,7 @@ exports.updateProduct = async (req, res) => {
         console.error("Update product error:", error);
         return res.status(500).json({
             statusCode: 500,
-            message: "Internal Server Error"
+            message: error.message || "Internal Server Error"
         });
     }
 };
@@ -287,7 +287,7 @@ exports.deleteProduct = async (req, res) => {
         console.error("Error deleting product:", error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };
@@ -391,7 +391,7 @@ exports.updateProductStatus = async (req, res) => {
         console.error("Error updating product status:", error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error'
+            message: error.message || 'Internal Server Error'
         });
     }
 };

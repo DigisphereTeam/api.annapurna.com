@@ -39,7 +39,7 @@ exports.userRegister = async (req, res) => {
             user: user.rows[0],
         })
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' })
+        res.status(500).json({ message: error.message || 'Internal server error' })
     }
 }
 
@@ -88,7 +88,7 @@ exports.userSignin = async (req, res) => {
         console.error("Error during login:", error);
         res.status(500).json({
             statusCode: 500,
-            message: "Internal Server Error"
+            message: error.message || "Internal Server Error"
         });
     }
 };
@@ -134,7 +134,7 @@ exports.forgotPassword = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             statusCode: 500,
-            message: error.message
+            message: error.message || "Internal Server Error"
         });
     }
 };
@@ -173,7 +173,7 @@ exports.verifyForgotPasswordOtp = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             statusCode: 500,
-            message: error.message
+            message: error.message || "Internal Server Error"
         });
     }
 };
@@ -208,7 +208,7 @@ exports.resetPassword = async (req, res) => {
     } catch (error) {
         return res.status(500).json({
             statusCode: 500,
-            message: error.message
+            message: error.message || "Internal Server Error"
         });
     }
 };
@@ -250,7 +250,7 @@ exports.getuserByid = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             statusCode: 500,
-            message: 'internal Server error'
+            message: error.message || 'internal Server error'
         })
     }
 }

@@ -34,7 +34,7 @@ exports.addCarousel = async (req, res) => {
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ message: error.message || 'Internal server error' });
     }
 };
 
@@ -51,7 +51,7 @@ exports.getallCarousels = async (req, res) => {
             carousels: allcarousels.rows,
         })
     } catch (err) {
-        res.status(500).json({ message: 'Internal Server error' })
+        res.status(500).json({ message: error.message || 'Internal Server error' })
     }
 }
 
@@ -78,7 +78,7 @@ exports.getcarouselByid = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             statusCode: 500,
-            message: 'internal Server error'
+            message: error.message || 'Internal Server error'
         })
     }
 }
@@ -147,7 +147,7 @@ exports.updatecarousel = async (req, res) => {
         console.error(error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error',
+            message: error.message || 'Internal Server Error',
         });
     }
 };
@@ -193,7 +193,7 @@ exports.deleteCarousel = async (req, res) => {
 
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error',
+            message: error.message || 'Internal Server Error',
         });
     }
 };

@@ -25,7 +25,7 @@ exports.adminLogin = async (req, res) => {
         res.status(200).json({ statusCode: 200,message: 'Login successful', admin: { id: admin.adminid, email: admin.email} });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: error.message || 'Internal Server error' });
     }
 };
 
@@ -57,6 +57,6 @@ exports.register=async (req, res) => {
         res.status(201).json({ message: 'Admin registered successfully' });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ message: error.message || 'Internal server error' });
     }
 };

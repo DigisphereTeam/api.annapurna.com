@@ -73,7 +73,7 @@ exports.addCart = async (req, res) => {
         });
     } catch (error) {
         console.error('Error in addCart:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ message: error.message || 'Internal server error' });
     }
 };
 
@@ -149,7 +149,7 @@ exports.getallCarts = async (req, res) => {
             categories: allcategory.rows,
         })
     } catch (err) {
-        res.status(500).json({ message: 'Internal Server error' })
+        res.status(500).json({ message: error.message || 'Internal Server error' })
     }
 }
 
@@ -198,7 +198,7 @@ exports.updatecartproduct = async (req, res) => {
     } catch (error) {
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error',
+            message: error.message || 'Internal Server Error',
         });
     }
 }
@@ -290,7 +290,7 @@ exports.deleteallCart = async (req, res) => {
         console.error("Error deleting category:", error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error',
+            message: error.message || 'Internal Server Error',
         });
     }
 };

@@ -107,7 +107,7 @@ exports.getOrdersByStatus = async (req, res) => {
     console.error(error.message);
     res.status(500).json({
       statusCode: 500,
-      message: 'Internal Server Error',
+      message: error.message || 'Internal Server Error',
     });
   }
 };

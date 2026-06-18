@@ -36,7 +36,7 @@ exports.addCategory = async (req, res) => {
             category: category.rows[0],
         })
     } catch (error) {
-        res.status(500).json({ error: 'Internal server error' })
+        res.status(500).json({ message: error.message || 'Internal server error' })
     }
 }
  
@@ -52,7 +52,7 @@ exports.getallCategories=async(req,res)=>{
             categories:allcategory.rows,
         })
     }catch(err){
-        res.status(500).json({message:'Internal Server error'})
+        res.status(500).json({message: error.message || 'Internal Server error'})
     }
 }
 
@@ -80,7 +80,7 @@ exports.getcategoryByid=async(req,res)=>{
     }catch(error){
         res.status(500).json({
             statusCode:500,
-            message:'internal Server error'
+            message: error.message || 'Internal Server error'
         })
     }
 }
@@ -152,8 +152,7 @@ exports.updateCategory = async (req, res) => {
         console.error("Database Error:", error);
         res.status(500).json({
             statusCode: 500,
-            message: 'Internal Server Error',
-            details: error.message,
+            message: error.message || 'Internal Server Error',
         });
     }
 };
