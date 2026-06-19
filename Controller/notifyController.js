@@ -70,9 +70,10 @@ exports.getAllNotifyRequests = async (req, res) => {
                 g.price,
                 g.stock
             FROM public.tbl_notify_requests n
-            LEFT JOIN public.tbl_users u ON n.user_id = u.user_id
-            LEFT JOIN public.tbl_product p ON n.product_id = p.product_id
-            LEFT JOIN public.tbl_grams g ON n.gram_id = g.pricegrams_id
+            INNER JOIN public.tbl_users u ON n.user_id = u.user_id
+            INNER JOIN public.tbl_product p ON n.product_id = p.product_id
+            INNER JOIN public.tbl_grams g ON n.gram_id = g.pricegrams_id
+            ORDER BY n.notify_id DESC
             
         `;
 
