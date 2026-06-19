@@ -272,6 +272,17 @@ exports.deleteProduct = async (req, res) => {
             });
         }
 
+        const cartProduct = await pool.query(
+            `
+                SELECT cart_id
+                FROM tbl_cart
+                WHERE tbl_cart.product_id = $1
+            `,
+            [product_id]
+        );
+        if (cartProduct.rowCount > 0) {
+            return sendErrorResponse(res, 409, "This product cannot be deleted because it has been added to a user's cart");
+        }
 
         await pool.query(`DELETE FROM public.tbl_grams WHERE product_id = $1`, [product_id]);
 
