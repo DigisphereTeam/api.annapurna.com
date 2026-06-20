@@ -56,7 +56,12 @@ exports.userSignin = async (req, res) => {
 
     try {
 
-        const result = await pool.query("SELECT * FROM tbl_users WHERE email=$1", [email]);
+        const result = await pool.query(`
+            SELECT user_id , first_name , last_name, email,phone_number,street,city,state,pincode
+            FROM tbl_users 
+            WHERE email=$1`,
+            [email]
+        );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
@@ -216,7 +221,11 @@ exports.resetPassword = async (req, res) => {
 
 exports.getallusers = async (req, res) => {
     try {
-        const alluser = await pool.query("SELECT * FROM tbl_users");
+        const alluser = await pool.query(`
+            SELECT  user_id , first_name , last_name, email,phone_number,street,city,state,pincode
+            FROM tbl_users 
+            ORDER BY user_id DESC
+            `);
         res.status(200).json({
             statusCode: 200,
             message: 'User Fetched Sucessfully',
