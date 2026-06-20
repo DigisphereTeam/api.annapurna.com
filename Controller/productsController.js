@@ -475,6 +475,7 @@ exports.getHomeProducts = async (req, res) => {
                 SELECT 
                     p.product_id,
                     p.product_name,
+                    p.description,
                     cat.category_name,
                     p.product_image,
                     json_agg(
@@ -509,6 +510,7 @@ exports.getHomeProducts = async (req, res) => {
                 SELECT 
                     p.product_id,
                     p.product_name,
+                    p.description,
                     cat.category_name,
                     p.product_image,
                     json_agg(
@@ -544,6 +546,7 @@ exports.getHomeProducts = async (req, res) => {
                 SELECT 
                     p.product_id,
                     p.product_name,
+                    p.description,
                     cat.category_name,
                     p.product_image,
                     json_agg(
