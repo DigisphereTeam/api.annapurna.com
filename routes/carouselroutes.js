@@ -1,7 +1,8 @@
 const carouselcontroller = require('../Controller/carouselController');
 const express = require('express');
+const upload = require('../utils/uploadfile.js');
 const router = express.Router();
-const upload = require('../utils/fileupload');
+
 
 router.post('/addcarousel', upload.array('carousel_image', 5), carouselcontroller.addCarousel);
 
