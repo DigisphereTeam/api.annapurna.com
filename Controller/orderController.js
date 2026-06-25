@@ -348,5 +348,52 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
+exports.updateShippingDetails = async (req, res) => {
+    try {
+        const { order_id, tracking_id, tracking_link } = req.body;
+
+        if (!order_id || !tracking_id || !tracking_link) {
+            return res.status(400).json({
+                statusCode: 400,
+                message: "Order ID, Tracking ID and Tracking Link are required"
+            });
+        }
+
+        const orderResult = await pool.query(
+            `SELECT * FROM tbl_order WHERE order_id = $1`,
+            [order_id]
+        );
+
+        if (orderResult.rows.length === 0) {
+            return res.status(404).json({
+                statusCode: 404,
+                message: "Order not found"
+            });
+        }
+
+        const updatedOrder = await pool.query(
+            `UPDATE tbl_order
+             SET order_status = 'shipped',
+                 tracking_id = $1,
+                 tracking_link = $2,
+                 shipped_at = NOW()
+             WHERE order_id = $3
+             RETURNING *`,
+            [tracking_id, tracking_link, order_id]
+        );
+
+        return res.status(200).json({
+            statusCode: 200,
+            message: "Shipping details updated successfully",
+            data: updatedOrder.rows[0]
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            statusCode: 500,
+            message: error.message
+        });
+    }
+};
 
 
