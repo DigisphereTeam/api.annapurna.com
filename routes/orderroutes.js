@@ -8,7 +8,8 @@ const router= express.Router();
  router.get('/getOrders',ordercontroller.getorders);
  router.post('/getorderproducts',ordercontroller.getOrderItems);
  router.post('/updateOrderstatus',ordercontroller.updateOrderStatus);
- router.post('/updateshippingDetails',ordercontroller.updateShippingDetails);
+ router.post('/shippingDetails',ordercontroller.ShippingDetails);
+ router.post('/updateShippingDetails',ordercontroller.updateShippingDetails);
 
 
 module.exports=router

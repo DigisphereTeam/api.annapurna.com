@@ -348,7 +348,7 @@ exports.updateOrderStatus = async (req, res) => {
   }
 };
 
-exports.updateShippingDetails = async (req, res) => {
+exports.ShippingDetails = async (req, res) => {
     try {
         const { order_id, tracking_id, tracking_link } = req.body;
 
@@ -396,4 +396,52 @@ exports.updateShippingDetails = async (req, res) => {
     }
 };
 
+
+exports.updateShippingDetails = async (req, res) => {
+  const { order_id, tracking_id, tracking_link } = req.body;
+
+  if (!order_id) {
+    return res.status(400).json({
+      statusCode: 400,
+      message: "Order ID is required"
+    });
+  }
+
+  try {
+    const checkOrder = await pool.query(
+      `SELECT * FROM tbl_order WHERE order_id = $1`,
+      [order_id]
+    );
+
+    if (checkOrder.rows.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Order not found"
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE tbl_order
+       SET tracking_id = COALESCE($1, tracking_id),
+           tracking_link = COALESCE($2, tracking_link)
+       WHERE order_id = $3
+       RETURNING *`,
+      [tracking_id, tracking_link, order_id]
+    );
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Shipping details updated successfully",
+      data: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error("Error updating shipping details:", error);
+
+    return res.status(500).json({
+      statusCode: 500,
+      message: error.message || "Internal Server Error"
+    });
+  }
+};
 
