@@ -59,7 +59,7 @@ exports.addOrder = async (req, res) => {
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = String(now.getFullYear()).slice(-2);
 
-    const datePrefix = `AF_${day}_${month}_${year}`;
+    const datePrefix = `AF_${day}${month}${year}`;
 
     const countResult = await pool.query(
       `
