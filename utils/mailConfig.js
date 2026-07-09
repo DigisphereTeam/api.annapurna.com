@@ -164,3 +164,93 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
             `,
   });
 };
+
+
+exports.sendDigisphereContactMail = async (data) => {
+  await transporter.sendMail({
+    from: `"Digisphere Tech" <${process.env.HOSTINGER_MAIL_USER}>`,
+    to: process.env.ADMIN_MAIL,
+    subject: "Digisphere Tech - New Contact Inquiry",
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; background:#f5f7fa; padding:30px;">
+        <div style="max-width:650px; margin:auto; background:#ffffff; border-radius:10px; overflow:hidden; border:1px solid #e5e5e5;">
+
+          <!-- Header -->
+          <div style="background:#057DCD; color:#ffffff; padding:24px 30px;">
+            <h2 style="margin:0; font-size:28px; font-weight:bold;">
+              📩 Digisphere Tech - New Contact Inquiry
+            </h2>
+            <p style="margin:10px 0 0; color:#eaf6ff; font-size:15px; line-height:1.6;">
+              A new inquiry has been submitted through the Digisphere Tech website.
+            </p>
+          </div>
+
+          <!-- Body -->
+          <div style="padding:30px;">
+
+            <table width="100%" cellpadding="10" cellspacing="0" style="border-collapse:collapse; font-size:15px;">
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td width="35%"><strong>Full Name</strong></td>
+                <td>${data.full_name}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Company Name</strong></td>
+                <td>${data.company_name || "N/A"}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Email Address</strong></td>
+                <td>${data.email}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Phone Number</strong></td>
+                <td>${data.phone_number}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Service Required</strong></td>
+                <td>${data.service_required}</td>
+              </tr>
+
+            </table>
+
+            <!-- Project Description -->
+            <div style="margin-top:30px;">
+              <h3 style="margin-bottom:12px; color:#057DCD;">
+                Project Description
+              </h3>
+
+              <div style="
+                background:#f8fbff;
+                border-left:5px solid #057DCD;
+                padding:18px;
+                border-radius:6px;
+                color:#374151;
+                line-height:1.7;
+                font-size:15px;">
+                ${data.project_description}
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div style="
+            background:#f8fafc;
+            padding:18px;
+            text-align:center;
+            color:#6b7280;
+            font-size:13px;
+            border-top:1px solid #e5e7eb;">
+            This email was generated automatically from the
+            <strong style="color:#057DCD;">Digisphere Tech</strong> Contact Us form.
+          </div>
+
+        </div>
+      </div>
+    `,
+  });
+};
