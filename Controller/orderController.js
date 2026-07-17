@@ -1,6 +1,15 @@
 const pool = require('../db/db');
 const sendErrorResponse = require('../utils/sendErrorResponse.js');
 
+const crypto = require("crypto");
+const Razorpay = require("razorpay");
+ 
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+ 
+
 exports.addOrder = async (req, res) => {
   const { user_id, address, first_name, last_name, city, state, pincode, phonenumber, delivery_charges } = req.body;
 
@@ -349,51 +358,51 @@ exports.updateOrderStatus = async (req, res) => {
 };
 
 exports.ShippingDetails = async (req, res) => {
-    try {
-        const { order_id, tracking_id, tracking_link } = req.body;
+  try {
+    const { order_id, tracking_id, tracking_link } = req.body;
 
-        if (!order_id || !tracking_id || !tracking_link) {
-            return res.status(400).json({
-                statusCode: 400,
-                message: "Order ID, Tracking ID and Tracking Link are required"
-            });
-        }
+    if (!order_id || !tracking_id || !tracking_link) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Order ID, Tracking ID and Tracking Link are required"
+      });
+    }
 
-        const orderResult = await pool.query(
-            `SELECT * FROM tbl_order WHERE order_id = $1`,
-            [order_id]
-        );
+    const orderResult = await pool.query(
+      `SELECT * FROM tbl_order WHERE order_id = $1`,
+      [order_id]
+    );
 
-        if (orderResult.rows.length === 0) {
-            return res.status(404).json({
-                statusCode: 404,
-                message: "Order not found"
-            });
-        }
+    if (orderResult.rows.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: "Order not found"
+      });
+    }
 
-        const updatedOrder = await pool.query(
-            `UPDATE tbl_order
+    const updatedOrder = await pool.query(
+      `UPDATE tbl_order
              SET order_status = 'shipped',
                  tracking_id = $1,
                  tracking_link = $2,
                  shipped_at = NOW()
              WHERE order_id = $3
              RETURNING *`,
-            [tracking_id, tracking_link, order_id]
-        );
+      [tracking_id, tracking_link, order_id]
+    );
 
-        return res.status(200).json({
-            statusCode: 200,
-            message: "Shipping details updated successfully",
-            data: updatedOrder.rows[0]
-        });
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Shipping details updated successfully",
+      data: updatedOrder.rows[0]
+    });
 
-    } catch (error) {
-        return res.status(500).json({
-            statusCode: 500,
-            message: error.message
-        });
-    }
+  } catch (error) {
+    return res.status(500).json({
+      statusCode: 500,
+      message: error.message
+    });
+  }
 };
 
 
@@ -444,4 +453,255 @@ exports.updateShippingDetails = async (req, res) => {
     });
   }
 };
+exports.createPayment = async (req, res) => {
+  const { user_id } = req.body;
 
+  try {
+    const cartItemsResult = await pool.query(
+      "SELECT * FROM tbl_cart WHERE user_id=$1",
+      [user_id]
+    );
+
+    const cartItems = cartItemsResult.rows;
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({
+        message: "Cart Empty",
+      });
+    }
+
+    let totalAmount = 0;
+
+    for (const item of cartItems) {
+      const gramResult = await pool.query(
+        "SELECT price FROM tbl_grams WHERE pricegrams_id=$1",
+        [item.pricegrams_id]
+      );
+
+      totalAmount +=
+        Number(gramResult.rows[0].price) * Number(item.quantity);
+    }
+
+    const options = {
+      amount: totalAmount * 100,
+      currency: "INR",
+      receipt: "receipt_" + Date.now(),
+    };
+
+    const razorpayOrder = await razorpay.orders.create(options);
+
+    return res.json({
+      statusCode: 200,
+      razorpayOrder,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json(err);
+  }
+};
+
+
+exports.verifyPayment = async (req, res) => {
+  const {
+    razorpay_order_id,
+    razorpay_payment_id,
+    razorpay_signature,
+    user_id,
+    first_name,
+    last_name,
+    address,
+    city,
+    state,
+    pincode,
+    phonenumber,
+  } = req.body;
+
+  try {
+    // Verify Razorpay Signature
+    const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+      .digest("hex");
+
+    if (generatedSignature !== razorpay_signature) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Payment verification failed",
+      });
+    }
+
+    // Get Cart Items
+    const cartItemsResult = await pool.query(
+      "SELECT * FROM tbl_cart WHERE user_id=$1",
+      [user_id]
+    );
+
+    const cartItems = cartItemsResult.rows;
+
+    if (cartItems.length === 0) {
+      return res.status(400).json({
+        statusCode: 400,
+        message: "Cart is empty",
+      });
+    }
+
+    let totalAmount = 0;
+
+    for (const item of cartItems) {
+      const gramResult = await pool.query(
+        "SELECT stock, price FROM tbl_grams WHERE pricegrams_id=$1",
+        [item.pricegrams_id]
+      );
+
+      const gram = gramResult.rows[0];
+
+      if (!gram) {
+        return res.status(400).json({
+          message: "Product not found",
+        });
+      }
+
+      if (Number(gram.stock) < Number(item.quantity)) {
+        return res.status(400).json({
+          message: "Insufficient Stock",
+        });
+      }
+
+      console.log("DB Price:", gram.price);
+      console.log("Cart Quantity:", item.quantity);
+
+      const price = parseFloat(gram.price);
+      const quantity = parseInt(item.quantity);
+
+      console.log("Parsed Price:", price);
+      console.log("Parsed Quantity:", quantity);
+
+      totalAmount += price * quantity;
+    }
+
+    console.log("Final Total Amount:", totalAmount);
+
+    console.log("Final Total Amount:", totalAmount);
+
+    // Generate Order Number
+    const now = new Date();
+
+    const day = String(now.getDate()).padStart(2, "0");
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const year = String(now.getFullYear()).slice(-2);
+
+    const prefix = `AF_${day}${month}${year}`;
+
+    const countResult = await pool.query(
+      `SELECT COUNT(*) FROM tbl_order WHERE order_number LIKE $1`,
+      [`${prefix}_%`]
+    );
+
+    const count = Number(countResult.rows[0].count) + 1;
+
+    const orderNumber = `${prefix}_${String(count).padStart(4, "0")}`;
+
+    // Insert Order
+    const orderResult = await pool.query(
+      `INSERT INTO tbl_order
+      (
+        order_number,
+        user_id,
+        first_name,
+        last_name,
+        address,
+        city,
+        state,
+        pincode,
+        phonenumber,
+        total_amount,
+        payment_id,
+        razorpay_order_id,
+        payment_status,
+        payment_method,
+        order_status,
+        order_date
+      )
+      VALUES
+      (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,
+        'Success',
+        'Razorpay',
+        'Pending',
+        NOW()
+      )
+      RETURNING *`,
+      [
+        orderNumber,
+        user_id,
+        first_name,
+        last_name,
+        address,
+        city,
+        state,
+        pincode,
+        phonenumber,
+        totalAmount,
+        razorpay_payment_id,
+        razorpay_order_id,
+      ]
+    );
+
+    const order = orderResult.rows[0];
+
+    // Insert Order Items and Update Stock
+    for (const item of cartItems) {
+      const gramResult = await pool.query(
+        "SELECT stock, price FROM tbl_grams WHERE pricegrams_id=$1",
+        [item.pricegrams_id]
+      );
+
+      const gram = gramResult.rows[0];
+
+      const newStock = Number(gram.stock) - Number(item.quantity);
+
+      await pool.query(
+        `INSERT INTO tbl_order_items
+        (order_id, product_id, pricegrams_id, quantity, price)
+        VALUES($1,$2,$3,$4,$5)`,
+        [
+          order.order_id,
+          item.product_id,
+          item.pricegrams_id,
+          item.quantity,
+          gram.price,
+        ]
+      );
+
+      await pool.query(
+        `UPDATE tbl_grams
+         SET stock=$1
+         WHERE pricegrams_id=$2`,
+        [
+          newStock,
+          item.pricegrams_id,
+        ]
+      );
+    }
+
+    // Clear Cart
+    await pool.query(
+      "DELETE FROM tbl_cart WHERE user_id=$1",
+      [user_id]
+    );
+
+    return res.status(200).json({
+      statusCode: 200,
+      message: "Payment verified & Order placed successfully",
+      order,
+    });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json({
+      statusCode: 500,
+      message: err.message,
+    });
+  }
+};

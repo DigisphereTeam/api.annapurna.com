@@ -10,6 +10,8 @@ const router= express.Router();
  router.post('/updateOrderstatus',ordercontroller.updateOrderStatus);
  router.post('/shippingDetails',ordercontroller.ShippingDetails);
  router.post('/updateShippingDetails',ordercontroller.updateShippingDetails);
+ router.post("/create-payment",ordercontroller.createPayment);
+router.post("/verify-payment",ordercontroller.verifyPayment);
 
 
 module.exports=router
