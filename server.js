@@ -17,6 +17,7 @@ const notify = require('./routes/notifyroutes');
 const sendResponse = require("./utils/sendResponse.js");
 const notFoundController = require("./utils/notFound.js");
 const globalErrorHandler = require("./utils/globalErrorHandler.js");
+const jobApplicationRouter = require("./routes/jobApplicationRoutes.js");
 
 dotEnv.config();
 const app = express();
@@ -40,6 +41,7 @@ app.use('/order', orderRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/notify', notify);
 app.use("/contact-us", contactRoutes);
+app.use("/job-applications", jobApplicationRouter);
 
 app.use(notFoundController);
 app.use(globalErrorHandler);

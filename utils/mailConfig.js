@@ -11,6 +11,24 @@ const transporter = nodemailer.createTransport({
   tls: { rejectUnauthorized: false },
 });
 
+
+const careerTransporter = nodemailer.createTransport({
+  host: process.env.HOSTINGER_MAIL_CAREER_HOST,
+  port: Number(process.env.HOSTINGER_MAIL_CAREER_PORT),
+  secure: Number(process.env.HOSTINGER_MAIL_CAREER_PORT) === 465,
+  auth: {
+    user: process.env.HOSTINGER_MAIL_CAREER_USER,
+    pass: process.env.HOSTINGER_MAIL_CAREER_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+careerTransporter.verify(() => {
+  console.log("✅ CAREER SMTP SERVER READY");
+});
+
 transporter.verify(() => {
   console.log("✅ SMTP SERVER READY");
 });
@@ -36,9 +54,9 @@ exports.sendOtpMail = async (email, otp) => {
     subject: "OTP Verification",
     html: `
         <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
-          
+
           <div style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-            
+
             <!-- Header -->
             <div style="background: #198754; padding: 20px; text-align: center;">
               <h1 style="color: #ffffff; margin: 0;">Annapurna farms</h1>
@@ -47,12 +65,12 @@ exports.sendOtpMail = async (email, otp) => {
 
             <!-- Body -->
             <div style="padding: 25px; text-align: center;">
-              
+
               <h2 style="color: #333;">Email Verification</h2>
-              
+
               <p style="color: #555; font-size: 14px;">
                 Hello,<br><br>
-                Thank you for registering with <b>Annapurna farms</b>.  
+                Thank you for registering with <b>Annapurna farms</b>.
                 Please use the OTP below to verify your email address.
               </p>
 
@@ -102,9 +120,9 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
     subject: "Reset Your Password - Annapurna farms OTP",
     html: `
             <div style="font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;">
-              
+
               <div style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                
+
                 <!-- Header -->
                 <div style="background: #198754; padding: 20px; text-align: center;">
                   <h1 style="color: #ffffff; margin: 0;">Annapurna farms</h1>
@@ -113,9 +131,9 @@ exports.sendforgotpasswordOtpMail = async (email, otp) => {
 
                 <!-- Body -->
                 <div style="padding: 25px; text-align: center;">
-                  
+
                   <h2 style="color: #333;">Forgot Password Request</h2>
-                  
+
                   <p style="color: #555; font-size: 14px;">
                     Hello,<br><br>
                     We received a request to reset your password for your <b>Annapurna farms</b> account.
@@ -252,5 +270,102 @@ exports.sendDigisphereContactMail = async (data) => {
         </div>
       </div>
     `,
+  });
+};
+
+exports.sendJobApplicationMail = async (data) => {
+  await careerTransporter.sendMail({
+    from: `"Digisphere Careers" <${process.env.HOSTINGER_MAIL_CAREER_USER}>`,
+    to: process.env.ADMIN_CAREER_MAIL,
+    subject: `New Job Application - ${data.applied_role}`,
+    html: `
+      <div style="font-family: Arial, Helvetica, sans-serif; background:#f5f7fa; padding:30px;">
+        <div style="
+          max-width:650px;
+          margin:auto;
+          background:#ffffff;
+          border-radius:10px;
+          overflow:hidden;
+          border:1px solid #e5e5e5;
+        ">
+
+          <div style="background:#198754; color:#ffffff; padding:24px 30px;">
+            <h2 style="margin:0;">New Job Application</h2>
+            <p style="margin:10px 0 0; color:#e8f5e9;">
+              A new career application has been submitted.
+            </p>
+          </div>
+
+          <div style="padding:30px;">
+            <table width="100%" cellpadding="10" cellspacing="0" style="border-collapse:collapse; font-size:15px;">
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td width="35%"><strong>Applied Role</strong></td>
+                <td>${data.applied_role}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Full Name</strong></td>
+                <td>${data.full_name}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Email</strong></td>
+                <td>${data.email}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Phone Number</strong></td>
+                <td>${data.phone_number}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Current Location</strong></td>
+                <td>${data.current_location}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Experience</strong></td>
+                <td>${data.experience}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>LinkedIn</strong></td>
+                <td>${data.linkedin_profile || "N/A"}</td>
+              </tr>
+
+              <tr style="border-bottom:1px solid #eeeeee;">
+                <td><strong>Portfolio</strong></td>
+                <td>${data.portfolio_url || "N/A"}</td>
+              </tr>
+
+            </table>
+
+            <p style="color:#555; font-size:14px; margin-top:25px;">
+              The applicant's resume is attached to this email.
+            </p>
+          </div>
+
+          <div style="
+            background:#f8fafc;
+            padding:18px;
+            text-align:center;
+            color:#6b7280;
+            font-size:13px;
+            border-top:1px solid #e5e7eb;">
+            This email was generated automatically from the
+            <strong style="color:#198754;">Digisphere Careers</strong>
+            application form.
+          </div>
+
+        </div>
+      </div>
+    `,
+    attachments: [
+      {
+        filename: data.resumeFilename,
+        path: data.resumePath,
+      },
+    ],
   });
 };
