@@ -289,7 +289,7 @@ exports.sendJobApplicationMail = async (data) => {
           border:1px solid #e5e5e5;
         ">
 
-          <div style="background:#198754; color:#ffffff; padding:24px 30px;">
+          <div style="background:#057dcd; color:#ffffff; padding:24px 30px;">
             <h2 style="margin:0;">New Job Application</h2>
             <p style="margin:10px 0 0; color:#e8f5e9;">
               A new career application has been submitted.
