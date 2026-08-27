@@ -146,7 +146,7 @@ exports.sendNewSubscriptionNotification = async (subscriberEmail) => {
               font-size: 14px;
               line-height: 1.5;
             ">
-              Date: ${new Date().toLocaleString()}
+             Date: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
             </p>
           </div>
         `,
