@@ -113,6 +113,52 @@ exports.sendOtpMail = async (email, otp) => {
   });
 };
 
+exports.sendNewSubscriptionNotification = async (subscriberEmail) => {
+  try {
+    await transporter.sendMail({
+      from: process.env.HOSTINGER_MAIL_USER,
+      to: process.env.ADMIN_MAIL,
+      subject: "New Subscription",
+      html: `
+          <div style="
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          ">
+            <p style="
+              margin: 0 0 15px;
+              color: #673de6;
+              font-size: 20px;
+              font-weight: 600;
+              line-height: 1.5;
+            ">
+              ${subscriberEmail} has subscribed.
+            </p>
+
+            <p style="
+              margin: 0;
+              color: #666666;
+              font-size: 14px;
+              line-height: 1.5;
+            ">
+              Date: ${new Date().toLocaleString()}
+            </p>
+          </div>
+        `,
+    });
+    return true;
+  } catch (error) {
+    console.error("Send Subscription Notification Error:", error);
+    return false;
+  }
+};
+
+
 exports.sendforgotpasswordOtpMail = async (email, otp) => {
   await transporter.sendMail({
     from: `"Annapurna farms" <${process.env.HOSTINGER_MAIL_USER}>`,
